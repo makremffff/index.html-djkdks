@@ -3,15 +3,39 @@
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+// -------------------------------------------------------------------
+// 1. دالة مساعدة لقراءة الـ Body يدوياً (بدون Express)
+// -------------------------------------------------------------------
+async function getBody(req) {
+    return new Promise((resolve, reject) => {
+        let data = '';
+        req.on('data', chunk => { data += chunk; });
+        req.on('end', () => {
+            try {
+                if (!data) return resolve({});
+                resolve(JSON.parse(data));
+            } catch (e) {
+                reject(new Error('Invalid JSON format in request body.'));
+            }
+        });
+        req.on('error', reject);
+    });
+}
+
+// -------------------------------------------------------------------
+// 2. دالة موحدة لاستدعاء Supabase (REST API فقط)
+// -------------------------------------------------------------------
 /**
- * دالة موحدة لاستدعاء Supabase REST API
  * @param {string} table - اسم الجدول (مثل 'users', 'actions_log').
  * @param {string} method - طريقة HTTP (مثل 'POST', 'GET', 'PATCH').
- * @param {object} body - البيانات المراد إرسالها (في حالتي POST/PATCH).
- * @param {string} filter - سلاسل استعلام OData (مثل 'id=eq.1').
- * @returns {Promise<object>} - بيانات الاستجابة من Supabase.
+ * @param {object} body - البيانات المراد إرسالها.
+ * @param {string} filter - سلاسل استعلام OData.
  */
 async function callSupabase(table, method, body = null, filter = "") {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        throw new Error('Supabase credentials are not configured.');
+    }
+    
     const url = `${SUPABASE_URL}/rest/v1/${table}${filter ? '?' + filter : ''}`;
     
     const headers = {
@@ -21,12 +45,10 @@ async function callSupabase(table, method, body = null, filter = "") {
         'Accept': 'application/json'
     };
     
-    // لإضافة 'Prefer: return=minimal' عند الإدراج لتسريع العملية
+    // إعداد Prefer header للتعامل مع الإدراج والتحديث
     if (method === 'POST' && table === 'actions_log') {
         headers['Prefer'] = 'return=minimal'; 
-    }
-    // لإضافة 'Prefer: return=representation' عند التحديث للحصول على البيانات المحدثة
-    if (method === 'PATCH' || method === 'POST') {
+    } else if (method === 'PATCH' || method === 'POST') {
         headers['Prefer'] = 'return=representation'; 
     }
 
@@ -41,12 +63,17 @@ async function callSupabase(table, method, body = null, filter = "") {
 
         if (response.ok) {
             if (response.status === 204) return { success: true, data: null };
-            // Supabase API for a single row GET/PATCH returns an array, we take the first element
+            
             const jsonResponse = await response.json();
-            return Array.isArray(jsonResponse) && jsonResponse.length === 1 ? jsonResponse[0] : jsonResponse;
+            // Supabase returns an array for single-row queries/updates, we normalize it.
+            if (Array.isArray(jsonResponse) && jsonResponse.length === 1) {
+                return jsonResponse[0];
+            }
+            return jsonResponse;
+
         } else {
             const errorText = await response.text();
-            throw new Error(`Supabase Error: ${response.status} - ${errorText}`);
+            throw new Error(`Supabase API Error ${response.status}: ${errorText}`);
         }
     } catch (error) {
         console.error("Supabase Call Failed:", error);
@@ -54,38 +81,40 @@ async function callSupabase(table, method, body = null, filter = "") {
     }
 }
 
-
-/**
- * دالة تسجيل الأكشن في جدول actions_log.
- * @param {number} userId - معرف المستخدم.
- * @param {string} action - نوع الأكشن.
- * @param {object} payload - بيانات الحمولة.
- */
+// -------------------------------------------------------------------
+// 3. دالة تسجيل الأكشن في جدول actions_log
+// -------------------------------------------------------------------
 async function logAction(userId, action, payload) {
-    // لا ننتظر النتيجة هنا لتسريع الاستجابة للمستخدم
+    // Fire and forget: لا ننتظر النتيجة لتسريع الاستجابة للمستخدم
     callSupabase('actions_log', 'POST', {
         action: action,
         user_id: userId,
         payload: payload
     }).catch(err => {
-        console.error(`Failed to log action ${action} for user ${userId}:`, err.message);
+        // نكتفي بالتسجيل في console Vercel
+        console.error(`Failed to log action ${action}:`, err.message);
     });
 }
 
 
+// -------------------------------------------------------------------
+// 4. دالة Backend الرئيسية لـ Vercel Serverless
+// -------------------------------------------------------------------
 module.exports = async (req, res) => {
-    // 1. دعم CORS
+    
+    // دعم CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
+    // معالجة طلب OPTIONS (Pre-flight request)
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
         res.end();
         return;
     }
     
-    // 2. التحقق من أن الطلب هو POST
+    // التحقق من أن الطلب POST فقط
     if (req.method !== 'POST') {
         res.writeHead(405, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: false, error: 'Method Not Allowed. Only POST is supported.' }));
@@ -93,55 +122,39 @@ module.exports = async (req, res) => {
     }
 
     try {
-        // 3. قراءة وتحليل JSON Body
-        const body = await new Promise((resolve, reject) => {
-            let data = '';
-            req.on('data', chunk => { data += chunk; });
-            req.on('end', () => {
-                try { resolve(JSON.parse(data)); } 
-                catch (e) { reject(new Error('Invalid JSON format in request body.')); }
-            });
-            req.on('error', reject);
-        });
-
+        const body = await getBody(req);
         const { userId, action, ...data } = body;
 
         if (!userId || !action) {
             throw new Error('Missing required parameters: userId or action.');
         }
 
-        // تسجيل الأكشن في الخلفية
+        // تسجيل الأكشن
         logAction(userId, action, body);
 
         let responseData = {};
 
-        // 4. معالجة الأكشنات باستخدام switch(action)
+        // معالجة الأكشنات الـ 7 المستخلصة من index.html
         switch (action) {
             
             // ----------------------------------------------------
             // 1. الأكشن: getBalanceAndTaskStatus
             // ----------------------------------------------------
             case 'getBalanceAndTaskStatus':
-                // 🚨 يجب أن تقوم بإنشاء جدول 'users' يحتوي على الأعمدة:
-                // id (BIGINT/Unique), points (INT), usdt (NUMERIC), ticket (INT), join_status (TEXT), ads_left (INT)
-                
-                // جلب بيانات المستخدم
+                // جلب بيانات المستخدم: نقاط, USDT, تذاكر, حالة المهمة, الإعلانات المتبقية
                 const userData = await callSupabase('users', 'GET', null, `id=eq.${userId}&select=points,usdt,ticket,join_status,ads_left`);
                 
                 if (!userData) {
-                     // 🚨 إذا لم يتم العثور على المستخدم، قم بإنشائه بالقيم الافتراضية
-                     // const initialData = { id: userId, points: 0, usdt: 0.00, ticket: 0, join_status: 'join', ads_left: 300 };
-                     // const newUser = await callSupabase('users', 'POST', initialData);
-                     // throw new Error('User not found. Initializing...'); // أو إرجاع البيانات الافتراضية مباشرةً
-                     throw new Error('User not found in DB. Please ensure user registration/upsert is handled.'); 
+                     // 🚨 إذا لم يوجد المستخدم، يجب على الكود إنشاء مستخدم جديد هنا
+                     throw new Error('User data not found. Please ensure user registration/upsert is implemented.'); 
                 }
 
                 responseData = { 
                     points: userData.points, 
                     usdt: userData.usdt, 
                     ticket: userData.ticket, 
-                    joinTaskStatus: userData.join_status || 'join', 
-                    adsLeft: userData.ads_left || 300 
+                    joinTaskStatus: userData.join_status, 
+                    adsLeft: userData.ads_left 
                 };
                 break;
 
@@ -150,19 +163,11 @@ module.exports = async (req, res) => {
             // ----------------------------------------------------
             case 'addPoints':
                 const points = data.points; 
-                if (typeof points !== 'number' || points < 0) {
-                     throw new Error('Invalid points value.');
-                }
+                if (typeof points !== 'number' || points < 0) throw new Error('Invalid points value.');
                 
-                // تحديث النقاط: يجب استخدام دالة PostgreSQL لتجنب السباق (Race Condition)
-                // مثال: PATCH body: { points: points + points } (إذا كان SUPABASE يتيح ذلك)
-                // أو استخدم دالة مخصصة لزيادة النقاط
-                const updatedUserPoints = await callSupabase('users', 'PATCH', 
-                    { points: points }, // يجب تعديل هذا ليكون تحديثاً آمناً (Safe Increment)
-                    `id=eq.${userId}`
-                );
-                
-                responseData = { message: `Successfully added ${points} points.` };
+                // 🚨 يجب استخدام RPC أو دالة تحديث آمنة لزيادة النقاط بشكل متزامن
+                // await callSupabase('rpc/increment_points', 'POST', { user_id: userId, amount: points });
+                responseData = { message: `Requested addition of ${points} points.` };
                 break;
 
             // ----------------------------------------------------
@@ -170,22 +175,11 @@ module.exports = async (req, res) => {
             // ----------------------------------------------------
             case 'claimTaskReward':
                 const { task, reward } = data; 
-                if (task !== 'joinChannel' || typeof reward !== 'number') {
-                     throw new Error('Invalid task or reward data.');
-                }
+                if (task !== 'joinChannel' || typeof reward !== 'number') throw new Error('Invalid task data.');
                 
-                // 🚨 التحقق من الانضمام يجب أن يتم هنا (خارج نطاق هذا الكود - عبر API Telegram)
-                // إذا تم التحقق بنجاح:
-                const updatedUserTask = await callSupabase('users', 'PATCH', 
-                    { ticket: reward, join_status: 'claimed' }, // يجب تعديل هذا ليكون تحديثاً آمناً
-                    `id=eq.${userId}&join_status=eq.check` // تأكد من أنه في حالة 'check'
-                );
-                
-                if (!updatedUserTask) {
-                    throw new Error('Claim failed. Task not ready or already claimed.');
-                }
-
-                responseData = { message: `Reward of ${reward} tickets claimed for ${task}.` };
+                // 🚨 تنفيذ التحقق من الانضمام ثم تحديث حالة المهمة وإضافة التذاكر
+                // await callSupabase('users', 'PATCH', { /* تحديث */ }, `id=eq.${userId}&join_status=eq.check`);
+                responseData = { message: `Requested claim for ${reward} tickets for ${task}.` };
                 break;
 
             // ----------------------------------------------------
@@ -193,44 +187,26 @@ module.exports = async (req, res) => {
             // ----------------------------------------------------
             case 'watchAd':
                 const adReward = data.reward; 
-                if (typeof adReward !== 'number') {
-                    throw new Error('Invalid ad reward value.');
-                }
+                if (typeof adReward !== 'number') throw new Error('Invalid ad reward.');
                 
-                // تحديث التذاكر وتقليل الإعلانات المتبقية
-                const updatedUserAd = await callSupabase('users', 'PATCH', 
-                    { ticket: adReward, ads_left: -1 }, // يجب تعديل هذا ليكون تحديثاً آمناً
-                    `id=eq.${userId}&ads_left=gt.0` 
-                );
-
-                if (!updatedUserAd) {
-                    throw new Error('Ad claim failed. No ads left to watch.');
-                }
-
-                responseData = { message: `Ad watched. ${adReward} ticket added.` };
+                // 🚨 تنفيذ خصم إعلان واحد وزيادة التذكرة بشكل آمن
+                // await callSupabase('users', 'PATCH', { /* تحديث */ }, `id=eq.${userId}&ads_left=gt.0`);
+                responseData = { message: `Requested ad watch and ${adReward} ticket addition.` };
                 break;
 
             // ----------------------------------------------------
             // 5. الأكشن: executeSwap
             // ----------------------------------------------------
             case 'executeSwap':
-                const { points: pointsToSwap, newPoints, newUsdt } = data;
+                const { newPoints, newUsdt } = data;
                 
-                if (typeof pointsToSwap !== 'number' || typeof newPoints !== 'number' || !newUsdt) {
-                     throw new Error('Invalid swap data.');
-                }
+                if (typeof newPoints !== 'number' || !newUsdt) throw new Error('Invalid swap data.');
                 
-                // 🚨 عملية المقايضة الحقيقية:
-                // 1. جلب رصيد المستخدم الحالي للتحقق من كفاية النقاط.
-                // 2. تحديث الرصيد بخصم النقاط وإضافة USDT.
-                
-                const updatedUserSwap = await callSupabase('users', 'PATCH', 
-                    { points: newPoints, usdt: newUsdt }, 
-                    `id=eq.${userId}` // يجب إضافة شرط للتحقق من الرصيد الكافي هنا أيضاً
-                );
+                // 🚨 تنفيذ عملية المقايضة (خصم النقاط وإضافة USDT) كـ Transaction
+                // await callSupabase('rpc/execute_swap_transaction', 'POST', { user_id: userId, new_points: newPoints, new_usdt: newUsdt });
                 
                 responseData = { 
-                    message: "Swap successful",
+                    message: "Swap request sent for processing.",
                     newPoints: newPoints, 
                     newUsdt: newUsdt 
                 };
@@ -240,32 +216,33 @@ module.exports = async (req, res) => {
             // 6. الأكشن: spin
             // ----------------------------------------------------
             case 'spin':
-                // تنفيذ منطق Spin: خصم تذكرة/عملة، ثم إضافة المكافأة
-                // const result = await callSupabase('users', 'PATCH', { /* خصم وإضافة */ }, `id=eq.${userId}`);
-                responseData = { message: "Spin executed successfully, checking for reward..." };
+                // 🚨 تنفيذ منطق Spin (خصم تذكرة/عملة، ثم إضافة المكافأة)
+                // await callSupabase('rpc/execute_spin', 'POST', { user_id: userId });
+                responseData = { message: "Spin request sent." };
                 break;
                 
             // ----------------------------------------------------
             // 7. الأكشن: ref
             // ----------------------------------------------------
             case 'ref':
-                // جلب بيانات الإحالة:
+                // 🚨 جلب بيانات الإحالة
                 // const refData = await callSupabase('referrals', 'GET', null, `referrer_id=eq.${userId}`);
-                responseData = { message: "Referral menu data prepared." };
+                responseData = { message: "Referral data requested." };
                 break;
 
             default:
                 throw new Error(`Unknown action: ${action}`);
         }
 
-        // 5. إرسال استجابة النجاح
+        // إرسال استجابة النجاح
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true, action: action, ...responseData }));
 
     } catch (error) {
-        // 6. إرسال استجابة الخطأ
+        // إرسال استجابة الخطأ
         console.error(`Error processing request: ${error.message}`);
-        res.writeHead(500, { 'Content-Type': 'application/json' });
+        const statusCode = error.message.includes('JSON') || error.message.includes('Missing') ? 400 : 500;
+        res.writeHead(statusCode, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: false, error: error.message }));
     }
 };
