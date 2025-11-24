@@ -3,372 +3,366 @@
 <head>
     <meta charset="UTF-8">
     <title>Unified Game Interface - Fruit Rain</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #000;
-            height: 100vh;
-            font-family: 'Courier New', monospace;
-            overflow: hidden;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            position: relative;
-            transition: background-color 0.05s ease-out; 
-        }
+/* ... (بقية تنسيق CSS كما هو) ... */
+/* ---------------------------------- */
+/* Main Interface Styles              */
+/* ---------------------------------- */
+#main-interface {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: block;
+}
 
-        /* ---------------------------------- */
-        /* Main Interface Styles              */
-        /* ---------------------------------- */
-        #main-interface {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            display: block;
-        }
+/* Task Button Position & Size Adjustment */
+#task-button {
+    position: absolute;
+    top: 90px; 
+    left: 15px; 
+    width: 72px; 
+    height: 72px; 
+    z-index: 100;
+    background: #ff00ff; /* Magenta color */
+    box-shadow: 
+        0 6px 0 #cc00cc,
+        0 10px 15px rgba(255, 0, 255, 0.5);
+    border-radius: 50%;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        /* Task Button Position & Size Adjustment */
-        #task-button {
-            position: absolute;
-            top: 90px; 
-            left: 15px; 
-            width: 72px; 
-            height: 72px; 
-            z-index: 100;
-            background: #ff00ff; /* Magenta color */
-            box-shadow: 
-                0 6px 0 #cc00cc,
-                0 10px 15px rgba(255, 0, 255, 0.5);
-            border-radius: 50%;
-            border: none;
-            outline: none;
-            cursor: pointer;
-            transition: all 0.1s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        #task-button:active {
-            transform: translateY(3px);
-            box-shadow: 
-                0 3px 0 #cc00cc,
-                0 5px 8px rgba(255, 0, 255, 0.2);
-        }
+#task-button:active {
+    transform: translateY(3px);
+    box-shadow: 
+        0 3px 0 #cc00cc,
+        0 5px 8px rgba(255, 0, 255, 0.2);
+}
 
-        .top-bar {
-            position: absolute;
-            top: 15px; 
-            left: 0; 
-            right: 0;
-            display: flex;
-            justify-content: space-around; 
-            align-items: center;
-            z-index: 10;
-        }
+.top-bar {
+    position: absolute;
+    top: 15px; 
+    left: 0; 
+    right: 0;
+    display: flex;
+    justify-content: space-around; 
+    align-items: center;
+    z-index: 10;
+}
 
-        .crypto-item { text-align: center; }
-        .label { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; } 
-        .value { font-size: 22px; font-weight: bold; } 
-        .points .value { color: #ff00ff; }
-        .usdt .value { color: #00ffff; }
-        .ticket .value { color: #ffff00; }
+.crypto-item { text-align: center; }
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; } 
+.value { font-size: 22px; font-weight: bold; } 
+.points .value { color: #ff00ff; }
+.usdt .value { color: #00ffff; }
+.ticket .value { color: #ffff00; }
 
-        /* User Info Container: فقط للتوسيط */
-        #user-info-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* The Single Circle: User Photo Styles */
-        #userPhoto {
-            width: 120px; 
-            height: 120px; 
-            border-radius: 50%;
-            object-fit: cover; 
-            margin-bottom: 5px; 
-            border: 4px solid #ff00ff; /* إطار دائري أنيق */
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5); /* ظل أنيق */
-        }
+/* User Info Container: فقط للتوسيط */
+#user-info-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
-        #userId {
-            font-size: 14px; 
-            font-weight: bold;
-            color: #00ffff;
-            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5); /* تأثير نيون خفيف على الاسم */
-        }
+/* The Single Circle: User Photo Styles */
+#userPhoto {
+    width: 120px; 
+    height: 120px; 
+    border-radius: 50%;
+    object-fit: cover; 
+    margin-bottom: 8px; /* زيادة التباعد قبل الاسم */
+    border: 4px solid #ff00ff; 
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.5); 
+}
 
-        .bottom-buttons {
-            position: absolute;
-            bottom: 15px; 
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
+#userName { /* NEW: الاسم/اليوزرنيم الرئيسي */
+    font-size: 16px; 
+    font-weight: bold;
+    color: #fff; /* لون أبيض بارز */
+    margin-bottom: 2px;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
 
-        .btn-3d {
-            width: 64px; 
-            height: 64px; 
-            border-radius: 50%;
-            background: #fff;
-            border: none;
-            outline: none;
-            cursor: pointer;
-            position: relative;
-            box-shadow: 
-                0 6px 0 #ccc,
-                0 10px 15px rgba(255, 255, 255, 0.3);
-            transition: all 0.1s ease;
-            font-size: 14px; 
-            font-weight: bold;
-            color: #000;
-        }
+#userIdText { /* NEW: اليوزر ID */
+    font-size: 13px; 
+    font-weight: normal;
+    color: #00ffff;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5); 
+}
 
-        .btn-3d:active {
-            transform: translateY(3px);
-            box-shadow: 
-                0 3px 0 #ccc,
-                0 5px 8px rgba(255, 255, 255, 0.2);
-        }
+.bottom-buttons {
+    position: absolute;
+    bottom: 15px; 
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
 
-        /* ---------------------------------- */
-        /* Game Screen Styles                 */
-        /* ---------------------------------- */
-        #game-screen {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: none; 
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-        }
+.btn-3d {
+    width: 64px; 
+    height: 64px; 
+    border-radius: 50%;
+    background: #fff;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 
+        0 6px 0 #ccc,
+        0 10px 15px rgba(255, 255, 255, 0.3);
+    transition: all 0.1s ease;
+    font-size: 14px; 
+    font-weight: bold;
+    color: #000;
+}
 
-        .game-header {
-            width: 90%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            margin-bottom: 15px;
-            font-size: 20px; 
-            z-index: 10;
-            position: relative; 
-            pointer-events: none; 
-        }
-        
-        #game-timer {
-            color: #ff00ff;
-            font-weight: bold;
-            pointer-events: auto; 
-        }
-        
-        #game-score {
-            color: #ffff00;
-            font-weight: bold;
-            pointer-events: auto; 
-        }
-        
-        #gameCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 5;
-            cursor: pointer;
-            width: 100%;
-            height: 100%;
-        }
+.btn-3d:active {
+    transform: translateY(3px);
+    box-shadow: 
+        0 3px 0 #ccc,
+        0 5px 8px rgba(255, 255, 255, 0.2);
+}
 
-        /* ---------------------------------- */
-        /* Overlay Styles (General and Task)  */
-        /* ---------------------------------- */
-        .general-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start; 
-            z-index: 1000; 
-            text-align: center;
-            color: #fff;
-            padding: 15px 0; 
-            overflow-y: auto;
-        }
+/* ---------------------------------- */
+/* Game Screen Styles                 */
+/* ---------------------------------- */
+#game-screen {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none; 
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
 
-        #task-overlay h2 {
-            color: #00ffff;
-            font-size: 28px; 
-            margin-bottom: 20px;
-        }
+.game-header {
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    margin-bottom: 15px;
+    font-size: 20px; 
+    z-index: 10;
+    position: relative; 
+    pointer-events: none; 
+}
 
-        /* Task Card Styles */
-        #tasksOnly {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 90%; 
-            max-width: 550px; 
-            padding: 0; 
-            gap: 15px; 
-            box-sizing: border-box;
-        }
+#game-timer {
+    color: #ff00ff;
+    font-weight: bold;
+    pointer-events: auto; 
+}
 
-        .task-card {
-            background: #1a1a1a;
-            width: 100%;
-            min-height: 80px; 
-            padding: 12px 16px; 
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border: 1px solid #333;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
-        }
-        
-        .task-card .icon {
-            font-size: 32px; 
-            line-height: 1;
-            margin-right: 12px;
-        }
-        
-        .task-card .txt {
-            flex-grow: 1;
-            text-align: left;
-            font-size: 15px; 
-            font-weight: bold;
-            color: #fff;
-        }
+#game-score {
+    color: #ffff00;
+    font-weight: bold;
+    pointer-events: auto; 
+}
 
-        /* Task Buttons Styles (Unified Look) */
-        .task-button {
-            padding: 10px 15px; 
-            font-size: 14px; 
-            font-weight: bold;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s, box-shadow 0.1s;
-            min-width: 96px; 
-            height: 36px; 
-            text-align: center;
-            line-height: 1;
-        }
-        
-        .btn-join, .btn-watch-ad, .btn-claim {
-            background: #00ffff; 
-            color: #000;
-            box-shadow: 0 3px 0 #009999;
-        }
+#gameCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 5;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
 
-        .btn-join:active, .btn-watch-ad:active, .btn-claim:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #009999;
-        }
+/* ---------------------------------- */
+/* Overlay Styles (General and Task)  */
+/* ---------------------------------- */
+.general-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; 
+    z-index: 1000; 
+    text-align: center;
+    color: #fff;
+    padding: 15px 0; 
+    overflow-y: auto;
+}
 
-        .btn-claimed {
-            background: #555 !important;
-            color: #ccc !important;
-            cursor: default;
-            box-shadow: none !important;
-            pointer-events: none;
-        }
+#task-overlay h2 {
+    color: #00ffff;
+    font-size: 28px; 
+    margin-bottom: 20px;
+}
 
-        /* DEV NOTE STYLES */
-        #dev-note {
-            margin-top: 20px; 
-            padding: 10px; 
-            background: #000033; 
-            border: 1px solid #00ffff;
-            border-radius: 6px;
-            width: 90%;
-            max-width: 550px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px; 
-            font-size: 13px;
-            color: #ccc;
-        }
-        
-        #dev-note p {
-            margin: 0;
-            font-size: 13px; 
-            color: #fff;
-        }
+/* Task Card Styles */
+#tasksOnly {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90%; 
+    max-width: 550px; 
+    padding: 0; 
+    gap: 15px; 
+    box-sizing: border-box;
+}
 
-        #dev-contact-btn {
-            min-width: 80px; 
-            background: #ff00ff; 
-            box-shadow: 0 3px 0 #cc00cc;
-            color: #000;
-            font-weight: bold;
-            padding: 6px 12px; 
-            height: auto;
-        }
-        
-        #dev-contact-btn:active {
-            box-shadow: 0 1px 0 #cc00cc;
-        }
+.task-card {
+    background: #1a1a1a;
+    width: 100%;
+    min-height: 80px; 
+    padding: 12px 16px; 
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #333;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
 
-        .task-close-btn {
-            margin-top: 15px; 
-            padding: 8px 16px; 
-            font-size: 14px; 
-            background: #ccc;
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 50px;
-        }
-        
-        /* Game End Overlay styles */
-        #overlay {
-            justify-content: center;
-            padding-top: 0;
-            overflow-y: hidden;
-        }
-        
-        #overlay h2 {
-            font-size: 32px; 
-            color: #00ffff;
-        }
+.task-card .icon {
+    font-size: 32px; 
+    line-height: 1;
+    margin-right: 12px;
+}
 
-        #final-score {
-            font-size: 24px; 
-            color: #ff00ff;
-            margin: 12px 0;
-        }
+.task-card .txt {
+    flex-grow: 1;
+    text-align: left;
+    font-size: 15px; 
+    font-weight: bold;
+    color: #fff;
+}
 
-        #back-button {
-            padding: 8px 25px; 
-            font-size: 18px; 
-            background: #ffff00;
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+/* Task Buttons Styles (Unified Look) */
+.task-button {
+    padding: 10px 15px; 
+    font-size: 14px; 
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.1s;
+    min-width: 96px; 
+    height: 36px; 
+    text-align: center;
+    line-height: 1;
+}
+
+.btn-join, .btn-watch-ad, .btn-claim {
+    background: #00ffff; 
+    color: #000;
+    box-shadow: 0 3px 0 #009999;
+}
+
+.btn-join:active, .btn-watch-ad:active, .btn-claim:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #009999;
+}
+
+.btn-claimed {
+    background: #555 !important;
+    color: #ccc !important;
+    cursor: default;
+    box-shadow: none !important;
+    pointer-events: none;
+}
+
+/* DEV NOTE STYLES */
+#dev-note {
+    margin-top: 20px; 
+    padding: 10px; 
+    background: #000033; 
+    border: 1px solid #00ffff;
+    border-radius: 6px;
+    width: 90%;
+    max-width: 550px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px; 
+    font-size: 13px;
+    color: #ccc;
+}
+
+#dev-note p {
+    margin: 0;
+    font-size: 13px; 
+    color: #fff;
+}
+
+#dev-contact-btn {
+    min-width: 80px; 
+    background: #ff00ff; 
+    box-shadow: 0 3px 0 #cc00cc;
+    color: #000;
+    font-weight: bold;
+    padding: 6px 12px; 
+    height: auto;
+}
+
+#dev-contact-btn:active {
+    box-shadow: 0 1px 0 #cc00cc;
+}
+
+.task-close-btn {
+    margin-top: 15px; 
+    padding: 8px 16px; 
+    font-size: 14px; 
+    background: #ccc;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 50px;
+}
+
+/* Game End Overlay styles */
+#overlay {
+    justify-content: center;
+    padding-top: 0;
+    overflow-y: hidden;
+}
+
+#overlay h2 {
+    font-size: 32px; 
+    color: #00ffff;
+}
+
+#final-score {
+    font-size: 24px; 
+    color: #ff00ff;
+    margin: 12px 0;
+}
+
+#back-button {
+    padding: 8px 25px; 
+    font-size: 18px; 
+    background: #ffff00;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -396,8 +390,7 @@
 
         <div id="user-info-container">
             <img id="userPhoto" src="" alt="User Photo">
-            <div id="userId"></div>
-        </div>
+            <div id="userName"></div>  <div id="userIdText"></div> </div>
 
         <div class="bottom-buttons">
             <button class="btn-3d" data-action="play">play</button>
@@ -492,8 +485,10 @@
         const adsLeftSpan = document.getElementById('adsLeft'); 
         const devContactBtn = document.getElementById('dev-contact-btn'); 
         
-        // Photo Element
+        // Photo and User Info Elements
         const userPhoto = document.getElementById('userPhoto');
+        const userNameElement = document.getElementById('userName'); // عنصر جديد للاسم
+        const userIdTextElement = document.getElementById('userIdText'); // عنصر جديد للمعرف ID
 
         let score = 0;
         let timeLeft = 30; 
@@ -810,7 +805,13 @@
                     userPhoto.src = user.photo_url || '';
                     // Display photo only if URL is present, otherwise hide it.
                     userPhoto.style.display = user.photo_url ? 'block' : 'none'; 
-                    document.getElementById('userId').textContent = user.username ? `@${user.username}` : `ID: ${user.id}`;
+                    
+                    // Logic to display both username (or name) and ID
+                    const displayName = user.username ? `@${user.username}` : user.first_name || 'User'; 
+                    const displayId = `ID: ${user.id}`;
+                    
+                    userNameElement.textContent = displayName;
+                    userIdTextElement.textContent = displayId;
 
                     // Fetch task state and balance:
                     const res = await api('getBalanceAndTaskStatus', {userId: user.id});
