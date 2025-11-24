@@ -30,18 +30,18 @@
             display: block;
         }
 
-        /* Task Button Position & Size Adjustment */
+        /* Task Button Position & Size Adjustment - تم التصغير */
         #task-button {
             position: absolute;
-            top: 110px; /* Moved down below the top bar */
-            left: 20px; 
-            width: 90px; /* Larger */
-            height: 90px; /* Larger */
+            top: 90px; 
+            left: 15px; 
+            width: 72px; /* كان 90px */
+            height: 72px; /* كان 90px */
             z-index: 100;
             background: #ff00ff; /* Magenta color */
             box-shadow: 
-                0 8px 0 #cc00cc,
-                0 12px 20px rgba(255, 0, 255, 0.5);
+                0 6px 0 #cc00cc,
+                0 10px 15px rgba(255, 0, 255, 0.5);
             border-radius: 50%;
             border: none;
             outline: none;
@@ -53,15 +53,15 @@
         }
         
         #task-button:active {
-            transform: translateY(4px);
+            transform: translateY(3px);
             box-shadow: 
-                0 4px 0 #cc00cc,
-                0 6px 10px rgba(255, 0, 255, 0.2);
+                0 3px 0 #cc00cc,
+                0 5px 8px rgba(255, 0, 255, 0.2);
         }
 
         .top-bar {
             position: absolute;
-            top: 20px;
+            top: 15px; /* تم تصغير المسافة */
             left: 0; 
             right: 0;
             display: flex;
@@ -71,8 +71,8 @@
         }
 
         .crypto-item { text-align: center; }
-        .label { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; } 
-        .value { font-size: 28px; font-weight: bold; } 
+        .label { font-size: 12px; /* كان 14px */ text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; } 
+        .value { font-size: 22px; /* كان 28px */ font-weight: bold; } 
         .points .value { color: #ff00ff; }
         .usdt .value { color: #00ffff; }
         .ticket .value { color: #ffff00; }
@@ -82,12 +82,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
+            width: 160px; /* كان 200px */
+            height: 160px; /* كان 200px */
             border-radius: 50%;
             background: radial-gradient(circle, #111, #000);
             border: 2px solid #333;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -95,14 +95,14 @@
         }
 
         #userId {
-            margin-top: 10px;
-            font-size: 16px;
+            margin-top: 8px;
+            font-size: 14px; /* كان 16px */
             color: #00ffff;
         }
 
         .bottom-buttons {
             position: absolute;
-            bottom: 20px;
+            bottom: 15px; /* تم تصغير المسافة */
             left: 0;
             right: 0;
             display: flex;
@@ -111,8 +111,8 @@
         }
 
         .btn-3d {
-            width: 80px;
-            height: 80px;
+            width: 64px; /* كان 80px */
+            height: 64px; /* كان 80px */
             border-radius: 50%;
             background: #fff;
             border: none;
@@ -120,19 +120,19 @@
             cursor: pointer;
             position: relative;
             box-shadow: 
-                0 8px 0 #ccc,
-                0 12px 20px rgba(255, 255, 255, 0.3);
+                0 6px 0 #ccc,
+                0 10px 15px rgba(255, 255, 255, 0.3);
             transition: all 0.1s ease;
-            font-size: 16px;
+            font-size: 14px; /* كان 16px */
             font-weight: bold;
             color: #000;
         }
 
         .btn-3d:active {
-            transform: translateY(4px);
+            transform: translateY(3px);
             box-shadow: 
-                0 4px 0 #ccc,
-                0 6px 10px rgba(255, 255, 255, 0.2);
+                0 3px 0 #ccc,
+                0 5px 8px rgba(255, 255, 255, 0.2);
         }
 
         /* ---------------------------------- */
@@ -155,9 +155,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
-            margin-bottom: 20px;
-            font-size: 24px;
+            padding: 15px 0;
+            margin-bottom: 15px;
+            font-size: 20px; /* كان 24px */
             z-index: 10;
             position: relative; 
             pointer-events: none; 
@@ -202,66 +202,66 @@
             z-index: 1000; 
             text-align: center;
             color: #fff;
-            padding: 20px 0; 
+            padding: 15px 0; /* تم تصغير الحشو */
             overflow-y: auto;
         }
 
         #task-overlay h2 {
             color: #00ffff;
-            font-size: 36px;
-            margin-bottom: 30px;
+            font-size: 28px; /* كان 36px */
+            margin-bottom: 20px;
         }
 
-        /* Task Card Styles */
+        /* Task Card Styles - تم التصغير */
         #tasksOnly {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 90%; 
             max-width: 550px; 
-            padding: 0 0 0 0; /* تم إزالة الحشو السفلي ونقله للملاحظة */
-            gap: 20px; 
+            padding: 0; 
+            gap: 15px; /* كان 20px */
             box-sizing: border-box;
         }
 
         .task-card {
             background: #1a1a1a;
             width: 100%;
-            min-height: 100px; 
-            padding: 15px 20px; 
-            border-radius: 12px;
+            min-height: 80px; /* كان 100px */
+            padding: 12px 16px; /* كان 15px 20px */
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             border: 1px solid #333;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
         }
         
         .task-card .icon {
-            font-size: 40px; 
+            font-size: 32px; /* كان 40px */
             line-height: 1;
-            margin-right: 15px;
+            margin-right: 12px;
         }
         
         .task-card .txt {
             flex-grow: 1;
             text-align: left;
-            font-size: 18px; 
+            font-size: 15px; /* كان 18px */
             font-weight: bold;
             color: #fff;
         }
 
-        /* Task Buttons Styles (Unified Look) */
+        /* Task Buttons Styles (Unified Look) - تم التصغير */
         .task-button {
-            padding: 12px 18px; 
-            font-size: 16px; 
+            padding: 10px 15px; /* كان 12px 18px */
+            font-size: 14px; /* كان 16px */
             font-weight: bold;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.2s, box-shadow 0.1s;
-            min-width: 120px; 
-            height: 45px; 
+            min-width: 96px; /* كان 120px */
+            height: 36px; /* كان 45px */
             text-align: center;
             line-height: 1;
         }
@@ -285,36 +285,36 @@
             pointer-events: none;
         }
 
-        /* NEW DEV NOTE STYLES */
+        /* NEW DEV NOTE STYLES - تم التصغير */
         #dev-note {
-            margin-top: 30px;
-            padding: 15px;
+            margin-top: 20px; /* كان 30px */
+            padding: 10px; /* كان 15px */
             background: #000033; 
             border: 1px solid #00ffff;
-            border-radius: 8px;
+            border-radius: 6px;
             width: 90%;
             max-width: 550px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            font-size: 14px;
+            gap: 8px; /* كان 10px */
+            font-size: 13px;
             color: #ccc;
         }
         
         #dev-note p {
             margin: 0;
-            font-size: 15px;
+            font-size: 13px; /* كان 15px */
             color: #fff;
         }
 
         #dev-contact-btn {
-            min-width: 100px;
-            background: #ff00ff; /* Magenta for contrast */
+            min-width: 80px; /* تم تصغيره */
+            background: #ff00ff; 
             box-shadow: 0 3px 0 #cc00cc;
             color: #000;
             font-weight: bold;
-            padding: 8px 15px;
+            padding: 6px 12px; /* تم تصغيره */
             height: auto;
         }
         
@@ -323,9 +323,9 @@
         }
 
         .task-close-btn {
-            margin-top: 20px; /* Adjusted margin */
-            padding: 10px 20px;
-            font-size: 16px;
+            margin-top: 15px; /* كان 20px */
+            padding: 8px 16px; /* كان 10px 20px */
+            font-size: 14px; /* كان 16px */
             background: #ccc;
             color: #000;
             border: none;
@@ -334,7 +334,7 @@
             margin-bottom: 50px;
         }
         
-        /* Game End Overlay styles */
+        /* Game End Overlay styles - تم التصغير */
         #overlay {
             justify-content: center;
             padding-top: 0;
@@ -342,19 +342,19 @@
         }
         
         #overlay h2 {
-            font-size: 40px;
+            font-size: 32px; /* كان 40px */
             color: #00ffff;
         }
 
         #final-score {
-            font-size: 30px;
+            font-size: 24px; /* كان 30px */
             color: #ff00ff;
-            margin: 15px 0;
+            margin: 12px 0;
         }
 
         #back-button {
-            padding: 10px 30px;
-            font-size: 20px;
+            padding: 8px 25px; /* تم تصغيره */
+            font-size: 18px; /* كان 20px */
             background: #ffff00;
             color: #000;
             border: none;
@@ -369,7 +369,7 @@
     
     <div id="main-interface">
         <button id="task-button" data-action="showTask">
-            <span style="font-size: 36px;">🏆</span>
+            <span style="font-size: 30px;">🏆</span>
         </button>
 
         <div class="top-bar">
@@ -483,7 +483,7 @@
         const joinBtn = document.getElementById('joinBtn');
         const watchAdBtn = document.getElementById('watchAdBtn');
         const adsLeftSpan = document.getElementById('adsLeft'); 
-        const devContactBtn = document.getElementById('dev-contact-btn'); // New Dev button
+        const devContactBtn = document.getElementById('dev-contact-btn'); 
 
         let score = 0;
         let timeLeft = 30; 
@@ -508,7 +508,7 @@
 
         const FRUITS_EMOJIS = ['🍉', '🍌', '🍇', '🍓', '🍒', '🥝', '🍊', '🍍'];
         const BOMB_EMOJI = '💣';
-        const FRUIT_SIZE = 150; 
+        const FRUIT_SIZE = 120; // تم تصغير حجم الفواكه
         const FRUIT_TOUCH_RADIUS_MULTIPLIER = 2.5; 
         
         // --- Visual Flash Effect (No Sound/Haptic) ---
