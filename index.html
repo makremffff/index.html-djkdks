@@ -35,8 +35,8 @@
             position: absolute;
             top: 90px; 
             left: 15px; 
-            width: 72px; /* كان 90px */
-            height: 72px; /* كان 90px */
+            width: 72px; 
+            height: 72px; 
             z-index: 100;
             background: #ff00ff; /* Magenta color */
             box-shadow: 
@@ -61,7 +61,7 @@
 
         .top-bar {
             position: absolute;
-            top: 15px; /* تم تصغير المسافة */
+            top: 15px; 
             left: 0; 
             right: 0;
             display: flex;
@@ -71,8 +71,8 @@
         }
 
         .crypto-item { text-align: center; }
-        .label { font-size: 12px; /* كان 14px */ text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; } 
-        .value { font-size: 22px; /* كان 28px */ font-weight: bold; } 
+        .label { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; } 
+        .value { font-size: 22px; font-weight: bold; } 
         .points .value { color: #ff00ff; }
         .usdt .value { color: #00ffff; }
         .ticket .value { color: #ffff00; }
@@ -82,8 +82,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 160px; /* كان 200px */
-            height: 160px; /* كان 200px */
+            width: 160px; 
+            height: 160px; 
             border-radius: 50%;
             background: radial-gradient(circle, #111, #000);
             border: 2px solid #333;
@@ -94,15 +94,25 @@
             justify-content: center;
         }
 
+        /* NEW: User Photo Styles - الصورة ملتزمة بالدائرة */
+        .center-circle #userPhoto {
+            width: 120px; 
+            height: 120px; 
+            border-radius: 50%;
+            object-fit: cover; /* للحفاظ على الأبعاد الأصلية وعدم تشوه الصورة */
+            margin-bottom: 5px; /* فاصل بين الصورة والـ ID */
+            border: 2px solid #ff00ff; 
+        }
+
         #userId {
-            margin-top: 8px;
-            font-size: 14px; /* كان 16px */
+            margin-top: 0; /* تم إزالة الهامش العلوي والاعتماد على هامش الصورة */
+            font-size: 14px; 
             color: #00ffff;
         }
 
         .bottom-buttons {
             position: absolute;
-            bottom: 15px; /* تم تصغير المسافة */
+            bottom: 15px; 
             left: 0;
             right: 0;
             display: flex;
@@ -111,8 +121,8 @@
         }
 
         .btn-3d {
-            width: 64px; /* كان 80px */
-            height: 64px; /* كان 80px */
+            width: 64px; 
+            height: 64px; 
             border-radius: 50%;
             background: #fff;
             border: none;
@@ -123,7 +133,7 @@
                 0 6px 0 #ccc,
                 0 10px 15px rgba(255, 255, 255, 0.3);
             transition: all 0.1s ease;
-            font-size: 14px; /* كان 16px */
+            font-size: 14px; 
             font-weight: bold;
             color: #000;
         }
@@ -157,7 +167,7 @@
             align-items: center;
             padding: 15px 0;
             margin-bottom: 15px;
-            font-size: 20px; /* كان 24px */
+            font-size: 20px; 
             z-index: 10;
             position: relative; 
             pointer-events: none; 
@@ -202,17 +212,17 @@
             z-index: 1000; 
             text-align: center;
             color: #fff;
-            padding: 15px 0; /* تم تصغير الحشو */
+            padding: 15px 0; 
             overflow-y: auto;
         }
 
         #task-overlay h2 {
             color: #00ffff;
-            font-size: 28px; /* كان 36px */
+            font-size: 28px; 
             margin-bottom: 20px;
         }
 
-        /* Task Card Styles - تم التصغير */
+        /* Task Card Styles */
         #tasksOnly {
             display: flex;
             flex-direction: column;
@@ -220,15 +230,15 @@
             width: 90%; 
             max-width: 550px; 
             padding: 0; 
-            gap: 15px; /* كان 20px */
+            gap: 15px; 
             box-sizing: border-box;
         }
 
         .task-card {
             background: #1a1a1a;
             width: 100%;
-            min-height: 80px; /* كان 100px */
-            padding: 12px 16px; /* كان 15px 20px */
+            min-height: 80px; 
+            padding: 12px 16px; 
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -238,7 +248,7 @@
         }
         
         .task-card .icon {
-            font-size: 32px; /* كان 40px */
+            font-size: 32px; 
             line-height: 1;
             margin-right: 12px;
         }
@@ -246,22 +256,22 @@
         .task-card .txt {
             flex-grow: 1;
             text-align: left;
-            font-size: 15px; /* كان 18px */
+            font-size: 15px; 
             font-weight: bold;
             color: #fff;
         }
 
-        /* Task Buttons Styles (Unified Look) - تم التصغير */
+        /* Task Buttons Styles (Unified Look) */
         .task-button {
-            padding: 10px 15px; /* كان 12px 18px */
-            font-size: 14px; /* كان 16px */
+            padding: 10px 15px; 
+            font-size: 14px; 
             font-weight: bold;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.2s, box-shadow 0.1s;
-            min-width: 96px; /* كان 120px */
-            height: 36px; /* كان 45px */
+            min-width: 96px; 
+            height: 36px; 
             text-align: center;
             line-height: 1;
         }
@@ -285,10 +295,10 @@
             pointer-events: none;
         }
 
-        /* NEW DEV NOTE STYLES - تم التصغير */
+        /* DEV NOTE STYLES */
         #dev-note {
-            margin-top: 20px; /* كان 30px */
-            padding: 10px; /* كان 15px */
+            margin-top: 20px; 
+            padding: 10px; 
             background: #000033; 
             border: 1px solid #00ffff;
             border-radius: 6px;
@@ -297,24 +307,24 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px; /* كان 10px */
+            gap: 8px; 
             font-size: 13px;
             color: #ccc;
         }
         
         #dev-note p {
             margin: 0;
-            font-size: 13px; /* كان 15px */
+            font-size: 13px; 
             color: #fff;
         }
 
         #dev-contact-btn {
-            min-width: 80px; /* تم تصغيره */
+            min-width: 80px; 
             background: #ff00ff; 
             box-shadow: 0 3px 0 #cc00cc;
             color: #000;
             font-weight: bold;
-            padding: 6px 12px; /* تم تصغيره */
+            padding: 6px 12px; 
             height: auto;
         }
         
@@ -323,9 +333,9 @@
         }
 
         .task-close-btn {
-            margin-top: 15px; /* كان 20px */
-            padding: 8px 16px; /* كان 10px 20px */
-            font-size: 14px; /* كان 16px */
+            margin-top: 15px; 
+            padding: 8px 16px; 
+            font-size: 14px; 
             background: #ccc;
             color: #000;
             border: none;
@@ -334,7 +344,7 @@
             margin-bottom: 50px;
         }
         
-        /* Game End Overlay styles - تم التصغير */
+        /* Game End Overlay styles */
         #overlay {
             justify-content: center;
             padding-top: 0;
@@ -342,19 +352,19 @@
         }
         
         #overlay h2 {
-            font-size: 32px; /* كان 40px */
+            font-size: 32px; 
             color: #00ffff;
         }
 
         #final-score {
-            font-size: 24px; /* كان 30px */
+            font-size: 24px; 
             color: #ff00ff;
             margin: 12px 0;
         }
 
         #back-button {
-            padding: 8px 25px; /* تم تصغيره */
-            font-size: 18px; /* كان 20px */
+            padding: 8px 25px; 
+            font-size: 18px; 
             background: #ffff00;
             color: #000;
             border: none;
@@ -388,7 +398,7 @@
         </div>
 
         <div class="center-circle">
-            <img id="userPhoto" src="" alt="User Photo" style="display:none;">
+            <img id="userPhoto" src="" alt="User Photo">
             <div id="userId"></div>
         </div>
 
@@ -484,6 +494,9 @@
         const watchAdBtn = document.getElementById('watchAdBtn');
         const adsLeftSpan = document.getElementById('adsLeft'); 
         const devContactBtn = document.getElementById('dev-contact-btn'); 
+        
+        // Photo Element
+        const userPhoto = document.getElementById('userPhoto');
 
         let score = 0;
         let timeLeft = 30; 
@@ -508,7 +521,7 @@
 
         const FRUITS_EMOJIS = ['🍉', '🍌', '🍇', '🍓', '🍒', '🥝', '🍊', '🍍'];
         const BOMB_EMOJI = '💣';
-        const FRUIT_SIZE = 120; // تم تصغير حجم الفواكه
+        const FRUIT_SIZE = 120; 
         const FRUIT_TOUCH_RADIUS_MULTIPLIER = 2.5; 
         
         // --- Visual Flash Effect (No Sound/Haptic) ---
@@ -797,8 +810,9 @@
                 tg.ready();
                 const user = tg.initDataUnsafe?.user;
                 if (user) {
-                    document.getElementById('userPhoto').src = user.photo_url || '';
-                    document.getElementById('userPhoto').style.display = user.photo_url ? 'block' : 'none';
+                    userPhoto.src = user.photo_url || '';
+                    // Display photo only if URL is present, otherwise hide it.
+                    userPhoto.style.display = user.photo_url ? 'block' : 'none'; 
                     document.getElementById('userId').textContent = user.username ? `@${user.username}` : `ID: ${user.id}`;
 
                     // Fetch task state and balance:
