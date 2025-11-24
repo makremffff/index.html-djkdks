@@ -30,7 +30,7 @@
             display: block;
         }
 
-        /* Task Button Position & Size Adjustment - تم التصغير */
+        /* Task Button Position & Size Adjustment */
         #task-button {
             position: absolute;
             top: 90px; 
@@ -77,37 +77,34 @@
         .usdt .value { color: #00ffff; }
         .ticket .value { color: #ffff00; }
 
-        .center-circle {
+        /* User Info Container: فقط للتوسيط */
+        #user-info-container {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 160px; 
-            height: 160px; 
-            border-radius: 50%;
-            background: radial-gradient(circle, #111, #000);
-            border: 2px solid #333;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
-
-        /* NEW: User Photo Styles - الصورة ملتزمة بالدائرة */
-        .center-circle #userPhoto {
+        
+        /* The Single Circle: User Photo Styles */
+        #userPhoto {
             width: 120px; 
             height: 120px; 
             border-radius: 50%;
-            object-fit: cover; /* للحفاظ على الأبعاد الأصلية وعدم تشوه الصورة */
-            margin-bottom: 5px; /* فاصل بين الصورة والـ ID */
-            border: 2px solid #ff00ff; 
+            object-fit: cover; 
+            margin-bottom: 5px; 
+            border: 4px solid #ff00ff; /* إطار دائري أنيق */
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5); /* ظل أنيق */
         }
 
         #userId {
-            margin-top: 0; /* تم إزالة الهامش العلوي والاعتماد على هامش الصورة */
             font-size: 14px; 
+            font-weight: bold;
             color: #00ffff;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5); /* تأثير نيون خفيف على الاسم */
         }
 
         .bottom-buttons {
@@ -397,7 +394,7 @@
             </div>
         </div>
 
-        <div class="center-circle">
+        <div id="user-info-container">
             <img id="userPhoto" src="" alt="User Photo">
             <div id="userId"></div>
         </div>
