@@ -873,17 +873,18 @@
             const newPoints = currentPoints + score;
             
             try {
-                const response = await api('addPoints', { points: score }); 
+                // 🚨 تم استبدال 'addPoints' بـ 'recordGameEnd'
+                const response = await api('recordGameEnd', { points: score }); 
                 const resData = await response.json(); 
                 
                 // تحديث النقاط فقط عند نجاح API (افتراضياً API سيرجع النقاط المحدثة)
                 // هنا نستخدم القيمة المحسوبة محلياً كـ fallback
                 overallPointsElement.textContent = resData.newPoints || newPoints; 
-                console.log("Add Points Response:", resData);
+                console.log("Record Game End Response:", resData);
 
             } catch(e) {
                  // إذا فشل الاتصال، نظهر رسالة الخطأ ولا نحدث النقاط
-                 console.error("Failed to add points:", e);
+                 console.error("Failed to record game end:", e);
             }
 
 
@@ -1132,6 +1133,7 @@
                             
                             taskData.joinChannel.state = res.joinTaskStatus || 'join';
                             taskData.adsLeft = res.adsLeft || 300;
+                            // 🚨 يمكن عرض res.games_played هنا إذا أردت إظهاره للمستخدم
                         }
                     } catch(e) {
                          alert('Failed to load user data. Check backend connection.');
