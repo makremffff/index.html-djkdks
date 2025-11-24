@@ -306,6 +306,7 @@
             flex-direction: column;
             align-items: flex-start;
             gap: 10px;
+            width: 100%; /* ضمان العرض الكامل */
         }
 
         .input-group label {
@@ -336,6 +337,8 @@
             padding: 18px;
             border-radius: 10px;
             text-align: center;
+            width: 100%; /* ضمان العرض الكامل */
+            box-sizing: border-box;
         }
 
         .usdt-output-box p {
@@ -566,17 +569,17 @@
             </div>
 
             <div class="input-group">
-                <label for="pointsInput">Points to Swap:</label>
-                <input type="number" id="pointsInput" placeholder="Minimum 150,000">
+                <label for="pointsInput">Points to Swap (Available: <span id="availablePointsLabel">0</span>):</label>
+                <input type="number" id="pointsInput" placeholder="Enter amount (Min 150,000)">
             </div>
             
-            <div class="usdt-output-box">
+            <div class="usdt-output-box"> 
                 <p>You will receive:</p>
                 <div id="usdtOutput" class="usdt-value">0.00000000 USDT</div>
             </div>
 
             <button id="executeSwapBtn" class="task-button btn-join" disabled>
-                Min 150,000 Points
+                Min 150,000 Points Required
             </button>
         </div>
 
@@ -587,46 +590,59 @@
 
     <script>
         // --- API & Utility Functions ---
-        // 🚨 تم تعديل هذه الدالة لمحاكاة اتصال fetch، مما يسهل ربطها بـ backend index.js
+        // 🚨 هذا هو التنفيذ الحقيقي لربط Frontend بالـ Backend (Vercel /api/index.js)
         async function api(action, data = {}) {
-            // --- Simulate Fetch API call to Backend ---
-            const MOCK_RESPONSE = {
-                getBalanceAndTaskStatus: { 
-                    points: 0, 
-                    usdt: 0.00, 
-                    ticket: 0, 
-                    joinTaskStatus: 'join', 
-                    adsLeft: 300 
-                },
-                addPoints: { message: "Points added" },
-                claimTaskReward: { message: "Reward claimed" },
-                watchAd: { message: "Ad watched" },
-                executeSwap: (data) => ({ 
-                    message: "Swap successful",
-                    newPoints: data.newPoints, 
-                    newUsdt: data.newUsdt
-                }),
-                // Mock success for other actions (spin, ref)
-                spin: { message: "Spin executed" },
-                ref: { message: "Ref menu opened" }
-            };
+            // 1. جلب معرف المستخدم (userId) من Telegram WebApp
+            const userId = window.Telegram.WebApp.initDataUnsafe?.user?.id;
+            
+            if (!userId) {
+                console.error("FATAL: Could not retrieve userId from Telegram WebApp.");
+                throw new Error('User identification failed. Please ensure you are running this in Telegram.');
+            }
+            
+            // 2. نقطة الوصول (في Vercel نستخدم المسار النسبي /api)
+            const ENDPOINT = '/api'; 
 
-            console.log(`API Call (FETCH Simulation): ${action}`, data);
+            // 3. بناء الحمولة (Payload)
+            const payload = { userId, action, ...data };
+            
+            console.log(`API Call (Actual FETCH): ${action}`, payload);
 
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    const responseData = action === 'executeSwap' 
-                        ? MOCK_RESPONSE.executeSwap(data) 
-                        : MOCK_RESPONSE[action] || { message: "Action completed" };
-                        
-                    resolve({ 
-                        ok: true, // Mimic successful HTTP status
-                        // Mimic the response object from a successful fetch
-                        json: async () => responseData 
-                    });
-                }, 500); // Simulate network latency
-            });
+            try {
+                const response = await fetch(ENDPOINT, {
+                    method: 'POST', // جميع طلباتنا POST فقط
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                // التعامل مع أخطاء HTTP (مثل 400, 500)
+                if (!response.ok) {
+                    // محاولة قراءة رسالة الخطأ من الباك إند
+                    let errorMsg = `HTTP error! Status: ${response.status}`;
+                    try {
+                        const errorBody = await response.json();
+                        errorMsg = errorBody.error || errorMsg;
+                    } catch (e) {
+                        // في حال لم يكن الرد JSON
+                    }
+                    // رمي الخطأ ليتم التعامل معه في الدالة التي استدعت api()
+                    throw new Error(errorMsg);
+                }
+
+                // إرجاع الاستجابة لتتم قراءتها كـ JSON في الدوال الأخرى (مثل endGame)
+                return response; 
+                
+            } catch (error) {
+                console.error("Fetch API Error:", error.message);
+                // إظهار تنبيه للمستخدم النهائي
+                // alert(`API Error for ${action}: ${error.message}`);
+                // إعادة رمي الخطأ
+                throw error; 
+            }
         }
+
 
         // --- Game Variables ---
         const mainInterface = document.getElementById('main-interface');
@@ -661,6 +677,7 @@
         const pointsInput = document.getElementById('pointsInput');
         const usdtOutput = document.getElementById('usdtOutput');
         const executeSwapBtn = document.getElementById('executeSwapBtn');
+        const availablePointsLabel = document.getElementById('availablePointsLabel');
 
 
         let score = 0;
@@ -854,11 +871,21 @@
 
             const currentPoints = parseInt(overallPointsElement.textContent || '0');
             const newPoints = currentPoints + score;
-            overallPointsElement.textContent = newPoints;
             
-            const response = await api('addPoints', { points: score }); 
-            const resData = await response.json(); // 🚨 استخدام نمط fetch
-            console.log("Add Points Response:", resData);
+            try {
+                const response = await api('addPoints', { points: score }); 
+                const resData = await response.json(); 
+                
+                // تحديث النقاط فقط عند نجاح API (افتراضياً API سيرجع النقاط المحدثة)
+                // هنا نستخدم القيمة المحسوبة محلياً كـ fallback
+                overallPointsElement.textContent = resData.newPoints || newPoints; 
+                console.log("Add Points Response:", resData);
+
+            } catch(e) {
+                 // إذا فشل الاتصال، نظهر رسالة الخطأ ولا نحدث النقاط
+                 console.error("Failed to add points:", e);
+            }
+
 
             document.getElementById('final-score').textContent = `You scored ${score} points!`;
             document.getElementById('overlay').style.display = 'flex';
@@ -928,17 +955,27 @@
             joinBtn.disabled = true;
             joinBtn.className = 'task-button btn-claimed'; 
 
-            await new Promise(resolve => setTimeout(resolve, 1500)); 
+            try {
+                // لا ننتظر هنا وقت وهمي، نعتمد على استجابة الباك إند
+                const response = await api('claimTaskReward', { task: 'joinChannel', reward: taskData.joinChannel.reward });
+                const resData = await response.json(); 
+                console.log("Claim Task Response:", resData);
 
-            const response = await api('claimTaskReward', { task: 'joinChannel', reward: taskData.joinChannel.reward });
-            const resData = await response.json(); // 🚨 استخدام نمط fetch
-            console.log("Claim Task Response:", resData);
+                const reward = taskData.joinChannel.reward;
+                const currentTickets = parseInt(overallTicketElement.textContent || '0');
+                overallTicketElement.textContent = currentTickets + reward;
+                
+                // تحديث الحالة محلياً بعد نجاح الباك إند
+                taskData.joinChannel.state = 'claimed';
 
-            const reward = taskData.joinChannel.reward;
-            const currentTickets = parseInt(overallTicketElement.textContent || '0');
-            overallTicketElement.textContent = currentTickets + reward;
+            } catch (e) {
+                console.error("Failed to claim task:", e);
+                // في حالة الفشل نعود إلى حالة Check
+                joinBtn.textContent = 'Check & Claim';
+                joinBtn.disabled = false;
+                joinBtn.className = 'task-button btn-claim';
+            }
             
-            taskData.joinChannel.state = 'claimed';
             updateTaskDisplay();
         }
         
@@ -949,17 +986,23 @@
             watchAdBtn.disabled = true;
             watchAdBtn.className = 'task-button btn-claimed';
 
-            await new Promise(resolve => setTimeout(resolve, 5000)); 
-            
-            taskData.adsLeft--;
-            const reward = taskData.adReward;
-            const currentTickets = parseInt(overallTicketElement.textContent || '0');
-            overallTicketElement.textContent = currentTickets + reward;
-            
-            const response = await api('watchAd', { reward: reward });
-            const resData = await response.json(); // 🚨 استخدام نمط fetch
-            console.log("Watch Ad Response:", resData);
+            try {
+                // لا ننتظر هنا وقت وهمي، نعتمد على استجابة الباك إند أو نستخدم مؤقت داخلي إذا كان عرض الإعلان يتم خارجياً
+                await new Promise(resolve => setTimeout(resolve, 5000)); // يمكن استخدام هذا لتأخير بسيط محاكاة لوقت الإعلان
 
+                const reward = taskData.adReward;
+                const response = await api('watchAd', { reward: reward });
+                const resData = await response.json(); 
+                
+                taskData.adsLeft--;
+                const currentTickets = parseInt(overallTicketElement.textContent || '0');
+                overallTicketElement.textContent = currentTickets + reward;
+                
+            } catch(e) {
+                 console.error("Failed to watch ad:", e);
+                 // نترك taskData.adsLeft كما هي في حالة الفشل
+            }
+            
             updateTaskDisplay();
         }
 
@@ -969,26 +1012,32 @@
             const pointsValue = parseInt(pointsInput.value) || 0;
             const availablePoints = parseInt(overallPointsElement.textContent || '0');
             
+            // 🚨 1. Calculate the USDT value always (even if points < MIN_SWAP_POINTS)
             let usdtValue = 0;
-            let isValid = false;
-
-            if (pointsValue >= MIN_SWAP_POINTS && pointsValue <= availablePoints) {
+            if (pointsValue > 0) { 
                 usdtValue = pointsValue / EXCHANGE_RATE_DIVISOR;
-                isValid = true;
             }
+
+            // 2. Check for minimum and available points for validation
+            let isValid = (pointsValue >= MIN_SWAP_POINTS && pointsValue <= availablePoints);
 
             // Format USDT output to 8 decimal places for precise display
             const formattedUsdt = usdtValue.toFixed(8);
             usdtOutput.textContent = `${formattedUsdt} USDT`;
             
-            // Enable/Disable Swap Button
+            // 3. Update button state and text
             executeSwapBtn.disabled = !isValid;
+            
             if (isValid) {
                  executeSwapBtn.textContent = `SWAP ${pointsValue.toLocaleString()} POINTS`;
+            } else if (pointsValue === 0) {
+                executeSwapBtn.textContent = `Enter Points`;
+            } else if (pointsValue < MIN_SWAP_POINTS) {
+                executeSwapBtn.textContent = `Min ${MIN_SWAP_POINTS.toLocaleString()} Points Required`;
             } else if (pointsValue > availablePoints) {
                 executeSwapBtn.textContent = 'Insufficient Points';
             } else {
-                executeSwapBtn.textContent = `Min ${MIN_SWAP_POINTS.toLocaleString()} Points`;
+                executeSwapBtn.textContent = `Min ${MIN_SWAP_POINTS.toLocaleString()} Points Required`;
             }
         }
         
@@ -999,6 +1048,9 @@
             
             swapOverlay.style.display = 'flex';
             
+            // Update available points label
+            availablePointsLabel.textContent = parseInt(overallPointsElement.textContent || '0').toLocaleString();
+
             pointsInput.value = '';
             calculateSwap(); 
             
@@ -1026,26 +1078,27 @@
                 executeSwapBtn.textContent = 'Processing...';
                 executeSwapBtn.disabled = true;
 
-                // 🚨 استخدام نمط fetch
-                const response = await api('executeSwap', { 
-                    points: pointsToSwap, 
-                    // نمرر النتائج المتوقعة للمحاكاة، في الـ backend الحقيقي يتم حسابها وإعادتها
-                    newPoints: newPoints, 
-                    newUsdt: newUsdt.toFixed(2)
-                });
-                
-                if (response.ok) {
-                    const resData = await response.json(); // تحليل الرد
+                try {
+                    // 🚨 استخدام نمط fetch
+                    const response = await api('executeSwap', { 
+                        points: pointsToSwap, 
+                        newPoints: newPoints, 
+                        newUsdt: newUsdt.toFixed(8) // يجب إرسال 8 منازل عشرية لضمان الدقة
+                    });
                     
-                    // تحديث الواجهة بالقيم الجديدة التي "أعادها" السيرفر
-                    overallPointsElement.textContent = resData.newPoints;
-                    overallUsdtElement.textContent = resData.newUsdt; 
+                    if (response.ok) {
+                        const resData = await response.json(); 
+                        
+                        // يجب أن نعتمد على ما يرجعه الباك إند
+                        overallPointsElement.textContent = resData.newPoints;
+                        overallUsdtElement.textContent = resData.newUsdt; 
 
-                    alert(`Swap successful! You exchanged ${pointsToSwap.toLocaleString()} points for ${usdtGained.toFixed(8)} USDT.`);
-                    hideSwapOverlay(); 
-                } else {
-                    alert('Swap failed. Please try again.');
-                    calculateSwap(); // استعادة حالة الزر
+                        alert(`Swap successful! You exchanged ${pointsToSwap.toLocaleString()} points for ${usdtGained.toFixed(8)} USDT.`);
+                        hideSwapOverlay(); 
+                    } 
+                } catch(e) {
+                    alert('Swap failed. Please check your points and try again.');
+                    calculateSwap(); // إعادة تفعيل الزر إذا فشل الاتصال
                 }
             }
         }
@@ -1069,15 +1122,19 @@
                     userIdTextElement.textContent = displayId;
 
                     // Fetch task state and balance:
-                    const response = await api('getBalanceAndTaskStatus', {userId: user.id});
-                    if (response.ok) {
-                        const res = await response.json(); // 🚨 تحليل الرد
-                        document.getElementById('points').textContent = res.points;
-                        document.getElementById('usdt').textContent = res.usdt.toFixed(2); 
-                        document.getElementById('ticket').textContent = res.ticket;
-                        
-                        taskData.joinChannel.state = res.joinTaskStatus || 'join';
-                        taskData.adsLeft = res.adsLeft || 300;
+                    try {
+                        const response = await api('getBalanceAndTaskStatus', {userId: user.id});
+                        if (response.ok) {
+                            const res = await response.json(); 
+                            document.getElementById('points').textContent = res.points;
+                            document.getElementById('usdt').textContent = parseFloat(res.usdt).toFixed(2); // تأكد من أنه رقم عشري
+                            document.getElementById('ticket').textContent = res.ticket;
+                            
+                            taskData.joinChannel.state = res.joinTaskStatus || 'join';
+                            taskData.adsLeft = res.adsLeft || 300;
+                        }
+                    } catch(e) {
+                         alert('Failed to load user data. Check backend connection.');
                     }
                 }
             }
@@ -1093,7 +1150,14 @@
                     showSwapOverlay(); 
                 } else {
                     // Call API for other actions (spin, ref)
-                    api(action); 
+                    api(action).then(response => {
+                        if (response.ok) {
+                            // يمكن إضافة معالجة للـ resData هنا إذا كانت الأكشنات تحتاجها
+                            console.log(`Action ${action} called successfully.`);
+                        }
+                    }).catch(e => {
+                         console.error(`Action ${action} failed:`, e);
+                    }); 
                 }
             };
         });
