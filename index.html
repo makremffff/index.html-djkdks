@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>Unified Game Interface - Fruit Rain</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            transition: background-color 0.05s ease-out; 
+        }
+
+        /* ---------------------------------- */
+        /* Main Interface Styles              */
+        /* ---------------------------------- */
+        #main-interface {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: block;
+        }
+
+        /* Task Button Position & Size Adjustment */
+        #task-button {
+            position: absolute;
+            top: 110px; /* Moved down below the top bar */
+            left: 20px; 
+            width: 90px; /* Larger */
+            height: 90px; /* Larger */
+            z-index: 100;
+            background: #ff00ff; /* Magenta color */
+            box-shadow: 
+                0 8px 0 #cc00cc,
+                0 12px 20px rgba(255, 0, 255, 0.5);
+            border-radius: 50%;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #task-button:active {
+            transform: translateY(4px);
+            box-shadow: 
+                0 4px 0 #cc00cc,
+                0 6px 10px rgba(255, 0, 255, 0.2);
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 20px;
+            left: 0; 
+            right: 0;
+            display: flex;
+            justify-content: space-around; 
+            align-items: center;
+            z-index: 10;
+        }
+
+        .crypto-item { text-align: center; }
+        .label { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; } 
+        .value { font-size: 28px; font-weight: bold; } 
+        .points .value { color: #ff00ff; }
+        .usdt .value { color: #00ffff; }
+        .ticket .value { color: #ffff00; }
+
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #111, #000);
+            border: 2px solid #333;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #userId {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #00ffff;
+        }
+
+        .bottom-buttons {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .btn-3d {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #fff;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 
+                0 8px 0 #ccc,
+                0 12px 20px rgba(255, 255, 255, 0.3);
+            transition: all 0.1s ease;
+            font-size: 16px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 
+                0 4px 0 #ccc,
+                0 6px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        /* ---------------------------------- */
+        /* Game Screen Styles                 */
+        /* ---------------------------------- */
+        #game-screen {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .game-header {
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+            z-index: 10;
+            position: relative; 
+            pointer-events: none; 
+        }
+        
+        #game-timer {
+            color: #ff00ff;
+            font-weight: bold;
+            pointer-events: auto; 
+        }
+        
+        #game-score {
+            color: #ffff00;
+            font-weight: bold;
+            pointer-events: auto; 
+        }
+        
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 5;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ---------------------------------- */
+        /* Overlay Styles (General and Task)  */
+        /* ---------------------------------- */
+        .general-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+            z-index: 1000; 
+            text-align: center;
+            color: #fff;
+            padding: 20px 0; 
+            overflow-y: auto;
+        }
+
+        #task-overlay h2 {
+            color: #00ffff;
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+
+        /* Task Card Styles */
+        #tasksOnly {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%; 
+            max-width: 550px; 
+            padding: 0 0 0 0; /* تم إزالة الحشو السفلي ونقله للملاحظة */
+            gap: 20px; 
+            box-sizing: border-box;
+        }
+
+        .task-card {
+            background: #1a1a1a;
+            width: 100%;
+            min-height: 100px; 
+            padding: 15px 20px; 
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #333;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+        
+        .task-card .icon {
+            font-size: 40px; 
+            line-height: 1;
+            margin-right: 15px;
+        }
+        
+        .task-card .txt {
+            flex-grow: 1;
+            text-align: left;
+            font-size: 18px; 
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Task Buttons Styles (Unified Look) */
+        .task-button {
+            padding: 12px 18px; 
+            font-size: 16px; 
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.1s;
+            min-width: 120px; 
+            height: 45px; 
+            text-align: center;
+            line-height: 1;
+        }
+        
+        .btn-join, .btn-watch-ad, .btn-claim {
+            background: #00ffff; 
+            color: #000;
+            box-shadow: 0 3px 0 #009999;
+        }
+
+        .btn-join:active, .btn-watch-ad:active, .btn-claim:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #009999;
+        }
+
+        .btn-claimed {
+            background: #555 !important;
+            color: #ccc !important;
+            cursor: default;
+            box-shadow: none !important;
+            pointer-events: none;
+        }
+
+        /* NEW DEV NOTE STYLES */
+        #dev-note {
+            margin-top: 30px;
+            padding: 15px;
+            background: #000033; 
+            border: 1px solid #00ffff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 550px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        #dev-note p {
+            margin: 0;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        #dev-contact-btn {
+            min-width: 100px;
+            background: #ff00ff; /* Magenta for contrast */
+            box-shadow: 0 3px 0 #cc00cc;
+            color: #000;
+            font-weight: bold;
+            padding: 8px 15px;
+            height: auto;
+        }
+        
+        #dev-contact-btn:active {
+            box-shadow: 0 1px 0 #cc00cc;
+        }
+
+        .task-close-btn {
+            margin-top: 20px; /* Adjusted margin */
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #ccc;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 50px;
+        }
+        
+        /* Game End Overlay styles */
+        #overlay {
+            justify-content: center;
+            padding-top: 0;
+            overflow-y: hidden;
+        }
+        
+        #overlay h2 {
+            font-size: 40px;
+            color: #00ffff;
+        }
+
+        #final-score {
+            font-size: 30px;
+            color: #ff00ff;
+            margin: 15px 0;
+        }
+
+        #back-button {
+            padding: 10px 30px;
+            font-size: 20px;
+            background: #ffff00;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    
+    <div id="main-interface">
+        <button id="task-button" data-action="showTask">
+            <span style="font-size: 36px;">🏆</span>
+        </button>
+
+        <div class="top-bar">
+            <div class="crypto-item points">
+                <div class="label">points</div>
+                <div class="value" id="points">0</div>
+            </div>
+            <div class="crypto-item usdt">
+                <div class="label">usdt</div>
+                <div class="value" id="usdt">0</div>
+            </div>
+            <div class="crypto-item ticket">
+                <div class="label">ticket</div>
+                <div class="value" id="ticket">0</div>
+            </div>
+        </div>
+
+        <div class="center-circle">
+            <img id="userPhoto" src="" alt="User Photo" style="display:none;">
+            <div id="userId"></div>
+        </div>
+
+        <div class="bottom-buttons">
+            <button class="btn-3d" data-action="play">play</button>
+            <button class="btn-3d" data-action="spin">spin</button>
+            <button class="btn-3d" data-action="swap">swap</button>
+            <button class="btn-3d" data-action="ref">ref</button>
+        </div>
+    </div>
+    
+    <div id="game-screen">
+        <div class="game-header">
+            <div>Time Left: <span id="game-timer">30</span> seconds</div>
+            <div>Score: <span id="game-score">0</span></div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="overlay" class="general-overlay">
+            <h2>Time's Up!</h2>
+            <div id="final-score"></div>
+            <button id="back-button">Back to Main Menu</button>
+        </div>
+    </div>
+
+    <div id="task-overlay" class="general-overlay">
+        <h2>🏆 Daily Tasks</h2>
+        
+        <div id="tasksOnly">
+            
+            <div class="task-card">
+              <span class="icon">📢</span>
+              <span class="txt">Join our channel (+10🎟)</span>
+              <button class="task-button" id="joinBtn"></button>
+            </div>
+
+            <div class="task-card">
+              <span class="icon">📺</span>
+              <span class="txt">Watch 300 ads (<span id="adsLeft">300</span> left)</span>
+              <button class="task-button" id="watchAdBtn"></button>
+            </div>
+
+        </div>
+        
+        <div id="dev-note">
+            <p>If you want to add a task for your channel or special bot, contact the developer.</p>
+            <button id="dev-contact-btn" class="task-button">dev (@do1_8)</button>
+        </div>
+
+        <button id="close-task-overlay" class="task-close-btn">
+            Close
+        </button>
+    </div>
+
+    <script>
+        // --- API & Utility Functions ---
+        async function api(action, data = {}) {
+            try {
+                // Mock API call (Replace with actual backend logic)
+                console.log(`API Call: ${action}`, data);
+                // Simulate success for balance/task status fetch
+                if (action === 'getBalanceAndTaskStatus') {
+                    return { ok: true, data: { points: 1000, usdt: 5.50, ticket: 20, joinTaskStatus: 'join', adsLeft: 290 } };
+                }
+                // Simulate success for actions
+                return { ok: true };
+            } catch (e) {
+                console.error('API error', e);
+                return {ok: false};
+            }
+        }
+
+        // --- Game Variables ---
+        const mainInterface = document.getElementById('main-interface');
+        const gameScreen = document.getElementById('game-screen');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const timerElement = document.getElementById('game-timer');
+        const scoreElement = document.getElementById('game-score');
+        const backButton = document.getElementById('back-button');
+        const overallPointsElement = document.getElementById('points'); 
+        const overallTicketElement = document.getElementById('ticket'); 
+        const body = document.body; 
+
+        // Task Elements
+        const taskButton = document.getElementById('task-button');
+        const taskOverlay = document.getElementById('task-overlay');
+        const closeTaskButton = document.getElementById('close-task-overlay');
+        
+        // New Task Specific Elements
+        const joinBtn = document.getElementById('joinBtn');
+        const watchAdBtn = document.getElementById('watchAdBtn');
+        const adsLeftSpan = document.getElementById('adsLeft'); 
+        const devContactBtn = document.getElementById('dev-contact-btn'); // New Dev button
+
+        let score = 0;
+        let timeLeft = 30; 
+        let timerInterval;
+        let spawnInterval;
+        let animationFrameId;
+        let fruits = [];
+        let bombsSpawnedCount = 0; 
+        const MAX_BOMBS_PER_GAME = 2; 
+        const BOMB_SPAWN_PROBABILITY = 0.02; 
+        
+        // Task Data Model (Replace with actual fetched data on load)
+        let taskData = {
+            joinChannel: { 
+                state: 'join', // 'join', 'check', 'claimed'
+                reward: 10, 
+                link: 'https://t.me/YourChannelUsername' 
+            }, 
+            adsLeft: 300,
+            adReward: 1
+        };
+
+        const FRUITS_EMOJIS = ['🍉', '🍌', '🍇', '🍓', '🍒', '🥝', '🍊', '🍍'];
+        const BOMB_EMOJI = '💣';
+        const FRUIT_SIZE = 150; 
+        const FRUIT_TOUCH_RADIUS_MULTIPLIER = 2.5; 
+        
+        // --- Visual Flash Effect (No Sound/Haptic) ---
+        function flashBackground(isBomb = false) {
+            const flashColor = isBomb ? '#500000' : '#0a0a0a'; 
+            body.style.backgroundColor = flashColor; 
+            setTimeout(() => {
+                body.style.backgroundColor = '#000'; 
+            }, 50); 
+        }
+
+        // --- Game Logic ---
+
+        function createFruit() {
+            let isBomb = false;
+
+            if (bombsSpawnedCount < MAX_BOMBS_PER_GAME && Math.random() < BOMB_SPAWN_PROBABILITY) {
+                isBomb = true;
+                bombsSpawnedCount++; 
+            }
+            
+            fruits.push({
+                emoji: isBomb ? BOMB_EMOJI : FRUITS_EMOJIS[Math.floor(Math.random() * FRUITS_EMOJIS.length)],
+                x: Math.random() * (canvas.width - FRUIT_SIZE * 2) + FRUIT_SIZE, 
+                y: -FRUIT_SIZE, 
+                speed: Math.random() * 10 + 20, 
+                size: FRUIT_SIZE, 
+                isAlive: true,
+                isBomb: isBomb,
+                radius: FRUIT_SIZE / 2, 
+                touchRadius: (FRUIT_SIZE / 2) * FRUIT_TOUCH_RADIUS_MULTIPLIER 
+            });
+        }
+
+        function updateAndDraw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = fruits.length - 1; i >= 0; i--) {
+                const fruit = fruits[i];
+                
+                if (!fruit.isAlive) { 
+                    fruits.splice(i, 1);
+                    continue;
+                }
+                
+                fruit.y += fruit.speed;
+
+                ctx.font = `${fruit.size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(fruit.emoji, fruit.x, fruit.y);
+
+                if (fruit.y > canvas.height + fruit.size) {
+                    fruits.splice(i, 1);
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(updateAndDraw);
+        }
+        
+        function handleTouchOrClick(e) {
+            e.preventDefault(); 
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const rect = canvas.getBoundingClientRect();
+            const clickX = clientX - rect.left;
+            const clickY = clientY - rect.top;
+
+            for (let i = fruits.length - 1; i >= 0; i--) {
+                const item = fruits[i];
+                
+                const distance = Math.sqrt(Math.pow(item.x - clickX, 2) + Math.pow(item.y - clickY, 2));
+
+                if (distance < item.touchRadius) { 
+                    
+                    if (item.isBomb) {
+                        score = Math.max(0, score - 25); 
+                        flashBackground(true); 
+                    } else {
+                        score += 2; 
+                        flashBackground(false); 
+                    }
+                    
+                    scoreElement.textContent = score;
+                    item.isAlive = false; 
+                    
+                    break;
+                }
+            }
+        }
+
+
+        function showMainInterface() {
+            gameScreen.style.display = 'none';
+            mainInterface.style.display = 'block';
+            taskOverlay.style.display = 'none';
+            clearInterval(timerInterval);
+            clearInterval(spawnInterval);
+            cancelAnimationFrame(animationFrameId);
+            window.removeEventListener('resize', resizeCanvas); 
+            
+            canvas.removeEventListener('touchstart', handleTouchOrClick);
+            canvas.removeEventListener('click', handleTouchOrClick);
+
+            body.style.backgroundColor = '#000'; 
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if(gameScreen.style.display === 'flex') updateAndDraw();
+        }
+
+        function showGameScreen() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            mainInterface.style.display = 'none';
+            taskOverlay.style.display = 'none';
+            gameScreen.style.display = 'flex';
+            
+            canvas.addEventListener('touchstart', handleTouchOrClick);
+            canvas.addEventListener('click', handleTouchOrClick);
+            
+            startGame();
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 30;
+            fruits = []; 
+            bombsSpawnedCount = 0; 
+            scoreElement.textContent = score;
+            timerElement.textContent = timeLeft;
+            
+            document.getElementById('overlay').style.display = 'none';
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+            
+            spawnInterval = setInterval(createFruit, 150);
+
+            animationFrameId = requestAnimationFrame(updateAndDraw);
+        }
+
+        async function endGame() {
+            clearInterval(timerInterval);
+            clearInterval(spawnInterval);
+            cancelAnimationFrame(animationFrameId);
+            window.removeEventListener('resize', resizeCanvas);
+
+            const currentPoints = parseInt(overallPointsElement.textContent || '0');
+            const newPoints = currentPoints + score;
+            overallPointsElement.textContent = newPoints;
+            
+            await api('addPoints', { points: score }); 
+
+            document.getElementById('final-score').textContent = `You scored ${score} points!`;
+            document.getElementById('overlay').style.display = 'flex';
+        }
+        
+        // --- Task Functions (Updated for multiple tasks) ---
+        
+        function updateTaskDisplay() {
+            // 1. Join Channel Task
+            const joinState = taskData.joinChannel.state;
+            
+            joinBtn.onclick = null; 
+
+            if (joinState === 'join') {
+                joinBtn.textContent = 'Join';
+                joinBtn.className = 'task-button btn-join';
+                joinBtn.onclick = handleJoinChannel;
+                joinBtn.disabled = false;
+            } else if (joinState === 'check') {
+                joinBtn.textContent = 'Check & Claim';
+                joinBtn.className = 'task-button btn-claim';
+                joinBtn.onclick = checkJoinChannelStatus;
+                joinBtn.disabled = false;
+            } else { // claimed
+                joinBtn.textContent = 'Claimed';
+                joinBtn.className = 'task-button btn-claimed';
+                joinBtn.disabled = true;
+            }
+            
+            // 2. Watch Ads Task
+            adsLeftSpan.textContent = taskData.adsLeft;
+            const adsReward = taskData.adReward;
+            
+            if (taskData.adsLeft <= 0) {
+                watchAdBtn.textContent = 'Done';
+                watchAdBtn.className = 'task-button btn-claimed';
+                watchAdBtn.onclick = null;
+                watchAdBtn.disabled = true;
+            } else {
+                watchAdBtn.textContent = `+${adsReward}🎟`;
+                watchAdBtn.className = 'task-button btn-watch-ad';
+                watchAdBtn.onclick = handleWatchAd;
+                watchAdBtn.disabled = false;
+            }
+            
+            // 3. Dev Contact Button (Functionality handled in listeners)
+            devContactBtn.textContent = `dev (@do1_8)`; 
+            devContactBtn.onclick = () => window.open('https://t.me/do1_8', '_blank');
+        }
+
+        function showTaskOverlay() {
+            updateTaskDisplay(); // Update buttons before showing
+            mainInterface.style.display = 'none';
+            taskOverlay.style.display = 'flex';
+        }
+        
+        function hideTaskOverlay() {
+            taskOverlay.style.display = 'none';
+            showMainInterface(); // Return to main screen
+        }
+
+        function handleJoinChannel() {
+            // 1. Open the Telegram link in a new tab/window
+            window.open(taskData.joinChannel.link, '_blank');
+
+            // 2. Change the button state to 'check'
+            taskData.joinChannel.state = 'check';
+            updateTaskDisplay();
+        }
+
+        async function checkJoinChannelStatus() {
+            // Check Status Logic (Simulated)
+            joinBtn.textContent = '⏳ Checking...';
+            joinBtn.disabled = true;
+            joinBtn.className = 'task-button btn-claimed'; 
+
+            // Simulate API check
+            await new Promise(resolve => setTimeout(resolve, 1500)); 
+
+            // Mock Success: Give reward
+            const reward = taskData.joinChannel.reward;
+            const currentTickets = parseInt(overallTicketElement.textContent || '0');
+            overallTicketElement.textContent = currentTickets + reward;
+            
+            taskData.joinChannel.state = 'claimed';
+            updateTaskDisplay();
+
+            // In a real scenario, you'd update the backend:
+            await api('claimTaskReward', { task: 'joinChannel', reward: reward });
+        }
+        
+        async function handleWatchAd() {
+            if (taskData.adsLeft <= 0) return;
+            
+            // Simulate Ad Watching process
+            watchAdBtn.textContent = 'Watching...';
+            watchAdBtn.disabled = true;
+            watchAdBtn.className = 'task-button btn-claimed';
+
+            // Simulate ad delay (e.g., 5 seconds)
+            await new Promise(resolve => setTimeout(resolve, 5000)); 
+            
+            // Decrease count and add reward
+            taskData.adsLeft--;
+            const reward = taskData.adReward;
+            const currentTickets = parseInt(overallTicketElement.textContent || '0');
+            overallTicketElement.textContent = currentTickets + reward;
+            
+            // In a real scenario, you'd update the backend:
+            await api('watchAd', { reward: reward });
+
+            // Update display
+            updateTaskDisplay();
+        }
+
+
+        // --- Event Listeners ---
+        
+        window.addEventListener('load', async () => {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                const user = tg.initDataUnsafe?.user;
+                if (user) {
+                    document.getElementById('userPhoto').src = user.photo_url || '';
+                    document.getElementById('userPhoto').style.display = user.photo_url ? 'block' : 'none';
+                    document.getElementById('userId').textContent = user.username ? `@${user.username}` : `ID: ${user.id}`;
+
+                    // Fetch task state and balance:
+                    const res = await api('getBalanceAndTaskStatus', {userId: user.id});
+                    if (res.ok) {
+                        document.getElementById('points').textContent = res.data.points;
+                        document.getElementById('usdt').textContent = res.data.usdt;
+                        document.getElementById('ticket').textContent = res.data.ticket;
+                        
+                        // Update initial task state from mock API result
+                        taskData.joinChannel.state = res.data.joinTaskStatus || 'join';
+                        taskData.adsLeft = res.data.adsLeft || 300;
+                    }
+                }
+            }
+            showMainInterface();
+        });
+
+        document.querySelectorAll('.btn-3d').forEach(btn => {
+            btn.onclick = () => {
+                const action = btn.dataset.action;
+                if (action === 'play') {
+                    showGameScreen();
+                } else {
+                    api(action);
+                }
+            };
+        });
+
+        backButton.onclick = showMainInterface;
+        
+        // Task Event Listeners
+        taskButton.onclick = showTaskOverlay;
+        closeTaskButton.onclick = hideTaskOverlay;
+
+    </script>
+</body>
+</html>
