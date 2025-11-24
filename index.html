@@ -34,15 +34,15 @@
         /* Task Button Position & Size Adjustment */
         #task-button {
             position: absolute;
-            top: 90px; 
+            top: 80px; /* تم تعديل الموضع */
             left: 15px; 
-            width: 72px; 
-            height: 72px; 
+            width: 65px; /* 🚨 تم التصغير */
+            height: 65px; /* 🚨 تم التصغير */
             z-index: 100;
             background: #ff00ff; /* Magenta color */
             box-shadow: 
-                0 6px 0 #cc00cc,
-                0 10px 15px rgba(255, 0, 255, 0.5);
+                0 5px 0 #cc00cc, /* تم تعديل الظل */
+                0 8px 12px rgba(255, 0, 255, 0.5); /* تم تعديل الظل */
             border-radius: 50%;
             border: none;
             outline: none;
@@ -56,8 +56,8 @@
         #task-button:active {
             transform: translateY(3px);
             box-shadow: 
-                0 3px 0 #cc00cc,
-                0 5px 8px rgba(255, 0, 255, 0.2);
+                0 2px 0 #cc00cc,
+                0 4px 6px rgba(255, 0, 255, 0.2);
         }
 
         .top-bar {
@@ -127,8 +127,8 @@
         }
 
         .btn-3d {
-            width: 64px; 
-            height: 64px; 
+            width: 58px; /* 🚨 تم التصغير */
+            height: 58px; /* 🚨 تم التصغير */
             border-radius: 50%;
             background: #fff;
             border: none;
@@ -136,10 +136,10 @@
             cursor: pointer;
             position: relative;
             box-shadow: 
-                0 6px 0 #ccc,
-                0 10px 15px rgba(255, 255, 255, 0.3);
+                0 5px 0 #ccc, /* تم تعديل الظل */
+                0 8px 12px rgba(255, 255, 255, 0.3); /* تم تعديل الظل */
             transition: all 0.1s ease;
-            font-size: 14px; 
+            font-size: 13px; /* تم تصغير الخط قليلاً */
             font-weight: bold;
             color: #000;
         }
@@ -147,8 +147,8 @@
         .btn-3d:active {
             transform: translateY(3px);
             box-shadow: 
-                0 3px 0 #ccc,
-                0 5px 8px rgba(255, 255, 255, 0.2);
+                0 2px 0 #ccc,
+                0 4px 6px rgba(255, 255, 255, 0.2);
         }
 
         /* ---------------------------------- */
@@ -268,45 +268,48 @@
             color: #fff;
         }
 
-        /* Swap Overlay Styles */
+        /* 🚨 Swap Overlay Styles (Enhanced) */
         #swap-overlay h2 {
-            color: #ffff00; /* Yellow for prominence */
+            color: #ffff00; 
             font-size: 28px; 
-            margin-bottom: 20px;
+            margin-bottom: 25px; 
+            text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
         }
 
         #swap-container {
             width: 90%;
             max-width: 400px;
-            background: #1a1a1a;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(255, 255, 0, 0.2);
+            background: #0d0d0d; 
+            padding: 30px; 
+            border-radius: 15px; 
+            border: 1px solid #222;
+            box-shadow: 0 0 25px rgba(255, 0, 255, 0.3); /* Magenta shadow */
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            margin-top: 20px;
+            gap: 25px; 
+            margin-top: 30px;
         }
 
         .conversion-rate-info {
-            font-size: 14px;
+            font-size: 15px;
             color: #00ffff;
-            background: #222;
-            padding: 8px;
-            border-radius: 6px;
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 8px;
             text-align: center;
             font-weight: bold;
+            border: 1px solid #00ffff; /* Cyan border */
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            gap: 8px;
+            gap: 10px;
         }
 
         .input-group label {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: bold;
             color: #ff00ff;
         }
@@ -324,35 +327,39 @@
             outline: none;
         }
         #pointsInput:focus {
-             border-color: #ffff00;
+             border-color: #00ffff; /* Focus cyan */
         }
 
         .usdt-output-box {
-            background: #000033;
-            border: 1px solid #00ffff;
-            padding: 15px;
-            border-radius: 8px;
+            background: #000022; 
+            border: 1px dashed #00ffff; /* Dashed border for distinction */
+            padding: 18px;
+            border-radius: 10px;
             text-align: center;
         }
 
         .usdt-output-box p {
             margin: 0 0 5px 0;
-            font-size: 14px;
-            color: #ccc;
+            font-size: 15px;
+            color: #999;
         }
 
         .usdt-value {
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 24px; 
+            font-weight: bolder;
             color: #00ffff;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
         }
 
         #executeSwapBtn {
             width: 100%;
-            height: 50px;
-            font-size: 18px;
+            height: 55px; /* Taller button */
+            font-size: 20px;
+            background: #ffff00; /* Yellow for primary action */
+            color: #000;
+            box-shadow: 0 4px 0 #ccaa00;
         }
-
+        
         /* Task/General Buttons Styles (Unified Look) */
         .task-button {
             padding: 10px 15px; 
@@ -374,14 +381,19 @@
             box-shadow: 0 3px 0 #009999;
         }
 
-        .btn-join:active, .btn-watch-ad:active, .btn-claim:active, #executeSwapBtn:active {
+        .btn-join:active, .btn-watch-ad:active, .btn-claim:active {
             transform: translateY(2px);
             box-shadow: 0 1px 0 #009999;
         }
 
+        #executeSwapBtn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #ccaa00;
+        }
+
         .btn-claimed, #executeSwapBtn:disabled {
-            background: #555 !important;
-            color: #ccc !important;
+            background: #333 !important;
+            color: #777 !important;
             cursor: default;
             box-shadow: none !important;
             pointer-events: none;
@@ -564,7 +576,7 @@
             </div>
 
             <button id="executeSwapBtn" class="task-button btn-join" disabled>
-                SWAP NOW
+                Min 150,000 Points
             </button>
         </div>
 
@@ -575,31 +587,45 @@
 
     <script>
         // --- API & Utility Functions ---
+        // 🚨 تم تعديل هذه الدالة لمحاكاة اتصال fetch، مما يسهل ربطها بـ backend index.js
         async function api(action, data = {}) {
-            try {
-                // Mock API call (Replace with actual backend logic)
-                console.log(`API Call: ${action}`, data);
-                
-                if (action === 'getBalanceAndTaskStatus') {
-                    // يبدأ المستخدم برصيد صفر كما طُلِب
-                    return { 
-                        ok: true, 
-                        data: { 
-                            points: 0, 
-                            usdt: 0.00, 
-                            ticket: 0, 
-                            joinTaskStatus: 'join', 
-                            adsLeft: 300 
-                        } 
-                    };
-                }
-                
-                // Mock success for other actions (including executeSwap)
-                return { ok: true };
-            } catch (e) {
-                console.error('API error', e);
-                return {ok: false};
-            }
+            // --- Simulate Fetch API call to Backend ---
+            const MOCK_RESPONSE = {
+                getBalanceAndTaskStatus: { 
+                    points: 0, 
+                    usdt: 0.00, 
+                    ticket: 0, 
+                    joinTaskStatus: 'join', 
+                    adsLeft: 300 
+                },
+                addPoints: { message: "Points added" },
+                claimTaskReward: { message: "Reward claimed" },
+                watchAd: { message: "Ad watched" },
+                executeSwap: (data) => ({ 
+                    message: "Swap successful",
+                    newPoints: data.newPoints, 
+                    newUsdt: data.newUsdt
+                }),
+                // Mock success for other actions (spin, ref)
+                spin: { message: "Spin executed" },
+                ref: { message: "Ref menu opened" }
+            };
+
+            console.log(`API Call (FETCH Simulation): ${action}`, data);
+
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const responseData = action === 'executeSwap' 
+                        ? MOCK_RESPONSE.executeSwap(data) 
+                        : MOCK_RESPONSE[action] || { message: "Action completed" };
+                        
+                    resolve({ 
+                        ok: true, // Mimic successful HTTP status
+                        // Mimic the response object from a successful fetch
+                        json: async () => responseData 
+                    });
+                }, 500); // Simulate network latency
+            });
         }
 
         // --- Game Variables ---
@@ -612,7 +638,7 @@
         const backButton = document.getElementById('back-button');
         const overallPointsElement = document.getElementById('points'); 
         const overallTicketElement = document.getElementById('ticket'); 
-        const overallUsdtElement = document.getElementById('usdt'); // New reference for USDT
+        const overallUsdtElement = document.getElementById('usdt'); 
         const body = document.body; 
 
         // Task Elements
@@ -629,7 +655,7 @@
         const userNameElement = document.getElementById('userName'); 
         const userIdTextElement = document.getElementById('userIdText'); 
 
-        // 🚨 Swap Elements
+        // Swap Elements
         const swapOverlay = document.getElementById('swap-overlay');
         const closeSwapButton = document.getElementById('close-swap-overlay');
         const pointsInput = document.getElementById('pointsInput');
@@ -675,7 +701,7 @@
             }, 50); 
         }
 
-        // --- Game Logic (Unchanged) ---
+        // --- Game Logic ---
 
         function createFruit() {
             let isBomb = false;
@@ -689,7 +715,7 @@
                 emoji: isBomb ? BOMB_EMOJI : FRUITS_EMOJIS[Math.floor(Math.random() * FRUITS_EMOJIS.length)],
                 x: Math.random() * (canvas.width - FRUIT_SIZE * 2) + FRUIT_SIZE, 
                 y: -FRUIT_SIZE, 
-                speed: Math.random() * 10 + 20, 
+                speed: Math.random() * 8 + 15, /* 🚨 تم إبطاء السرعة */
                 size: FRUIT_SIZE, 
                 isAlive: true,
                 isBomb: isBomb,
@@ -762,7 +788,7 @@
             gameScreen.style.display = 'none';
             mainInterface.style.display = 'block';
             taskOverlay.style.display = 'none';
-            swapOverlay.style.display = 'none'; // Hide swap on return
+            swapOverlay.style.display = 'none'; 
             
             clearInterval(timerInterval);
             clearInterval(spawnInterval);
@@ -815,7 +841,7 @@
                 }
             }, 1000);
             
-            spawnInterval = setInterval(createFruit, 150);
+            spawnInterval = setInterval(createFruit, 180); /* 🚨 تم إبطاء معدل الظهور */
 
             animationFrameId = requestAnimationFrame(updateAndDraw);
         }
@@ -830,13 +856,15 @@
             const newPoints = currentPoints + score;
             overallPointsElement.textContent = newPoints;
             
-            await api('addPoints', { points: score }); 
+            const response = await api('addPoints', { points: score }); 
+            const resData = await response.json(); // 🚨 استخدام نمط fetch
+            console.log("Add Points Response:", resData);
 
             document.getElementById('final-score').textContent = `You scored ${score} points!`;
             document.getElementById('overlay').style.display = 'flex';
         }
         
-        // --- Task Functions (Unchanged) ---
+        // --- Task Functions ---
         
         function updateTaskDisplay() {
             const joinState = taskData.joinChannel.state;
@@ -902,14 +930,16 @@
 
             await new Promise(resolve => setTimeout(resolve, 1500)); 
 
+            const response = await api('claimTaskReward', { task: 'joinChannel', reward: taskData.joinChannel.reward });
+            const resData = await response.json(); // 🚨 استخدام نمط fetch
+            console.log("Claim Task Response:", resData);
+
             const reward = taskData.joinChannel.reward;
             const currentTickets = parseInt(overallTicketElement.textContent || '0');
             overallTicketElement.textContent = currentTickets + reward;
             
             taskData.joinChannel.state = 'claimed';
             updateTaskDisplay();
-
-            await api('claimTaskReward', { task: 'joinChannel', reward: reward });
         }
         
         async function handleWatchAd() {
@@ -926,12 +956,14 @@
             const currentTickets = parseInt(overallTicketElement.textContent || '0');
             overallTicketElement.textContent = currentTickets + reward;
             
-            await api('watchAd', { reward: reward });
+            const response = await api('watchAd', { reward: reward });
+            const resData = await response.json(); // 🚨 استخدام نمط fetch
+            console.log("Watch Ad Response:", resData);
 
             updateTaskDisplay();
         }
 
-        // --- Swap Logic (NEW) ---
+        // --- Swap Logic ---
         
         function calculateSwap() {
             const pointsValue = parseInt(pointsInput.value) || 0;
@@ -941,7 +973,6 @@
             let isValid = false;
 
             if (pointsValue >= MIN_SWAP_POINTS && pointsValue <= availablePoints) {
-                // Calculation: Points / 15,000,000
                 usdtValue = pointsValue / EXCHANGE_RATE_DIVISOR;
                 isValid = true;
             }
@@ -953,7 +984,7 @@
             // Enable/Disable Swap Button
             executeSwapBtn.disabled = !isValid;
             if (isValid) {
-                 executeSwapBtn.textContent = `SWAP ${pointsValue} POINTS`;
+                 executeSwapBtn.textContent = `SWAP ${pointsValue.toLocaleString()} POINTS`;
             } else if (pointsValue > availablePoints) {
                 executeSwapBtn.textContent = 'Insufficient Points';
             } else {
@@ -968,11 +999,9 @@
             
             swapOverlay.style.display = 'flex';
             
-            // Reset and calculate on show
             pointsInput.value = '';
             calculateSwap(); 
             
-            // Add listener (remove previous to prevent duplication)
             pointsInput.removeEventListener('input', calculateSwap);
             pointsInput.addEventListener('input', calculateSwap);
         }
@@ -986,33 +1015,37 @@
         async function handleExecuteSwap() {
             const pointsToSwap = parseInt(pointsInput.value);
             const availablePoints = parseInt(overallPointsElement.textContent || '0');
+            
+            const usdtGained = pointsToSwap / EXCHANGE_RATE_DIVISOR;
+            const currentUsdt = parseFloat(overallUsdtElement.textContent);
+            
+            const newPoints = availablePoints - pointsToSwap;
+            const newUsdt = currentUsdt + usdtGained;
 
             if (pointsToSwap >= MIN_SWAP_POINTS && pointsToSwap <= availablePoints) {
                 executeSwapBtn.textContent = 'Processing...';
                 executeSwapBtn.disabled = true;
 
-                // Simulate API call for exchange
-                const res = await api('executeSwap', { points: pointsToSwap });
-
-                if (res.ok) {
-                    // Update local state (Mock)
-                    const usdtGained = pointsToSwap / EXCHANGE_RATE_DIVISOR;
+                // 🚨 استخدام نمط fetch
+                const response = await api('executeSwap', { 
+                    points: pointsToSwap, 
+                    // نمرر النتائج المتوقعة للمحاكاة، في الـ backend الحقيقي يتم حسابها وإعادتها
+                    newPoints: newPoints, 
+                    newUsdt: newUsdt.toFixed(2)
+                });
+                
+                if (response.ok) {
+                    const resData = await response.json(); // تحليل الرد
                     
-                    const currentPoints = availablePoints - pointsToSwap;
-                    // Get current USDT value, parse it as float
-                    const currentUsdt = parseFloat(overallUsdtElement.textContent);
-                    const newUsdt = currentUsdt + usdtGained;
-                    
-                    // Update UI
-                    overallPointsElement.textContent = currentPoints;
-                    // Display USDT with 2 decimal places in the main interface
-                    overallUsdtElement.textContent = newUsdt.toFixed(2); 
+                    // تحديث الواجهة بالقيم الجديدة التي "أعادها" السيرفر
+                    overallPointsElement.textContent = resData.newPoints;
+                    overallUsdtElement.textContent = resData.newUsdt; 
 
-                    alert(`Swap successful! You exchanged ${pointsToSwap} points for ${usdtGained.toFixed(8)} USDT.`);
+                    alert(`Swap successful! You exchanged ${pointsToSwap.toLocaleString()} points for ${usdtGained.toFixed(8)} USDT.`);
                     hideSwapOverlay(); 
                 } else {
                     alert('Swap failed. Please try again.');
-                    calculateSwap(); // Restore button state
+                    calculateSwap(); // استعادة حالة الزر
                 }
             }
         }
@@ -1036,14 +1069,15 @@
                     userIdTextElement.textContent = displayId;
 
                     // Fetch task state and balance:
-                    const res = await api('getBalanceAndTaskStatus', {userId: user.id});
-                    if (res.ok) {
-                        document.getElementById('points').textContent = res.data.points;
-                        document.getElementById('usdt').textContent = res.data.usdt.toFixed(2); // Display USDT with 2 decimals
-                        document.getElementById('ticket').textContent = res.data.ticket;
+                    const response = await api('getBalanceAndTaskStatus', {userId: user.id});
+                    if (response.ok) {
+                        const res = await response.json(); // 🚨 تحليل الرد
+                        document.getElementById('points').textContent = res.points;
+                        document.getElementById('usdt').textContent = res.usdt.toFixed(2); 
+                        document.getElementById('ticket').textContent = res.ticket;
                         
-                        taskData.joinChannel.state = res.data.joinTaskStatus || 'join';
-                        taskData.adsLeft = res.data.adsLeft || 300;
+                        taskData.joinChannel.state = res.joinTaskStatus || 'join';
+                        taskData.adsLeft = res.adsLeft || 300;
                     }
                 }
             }
@@ -1056,9 +1090,10 @@
                 if (action === 'play') {
                     showGameScreen();
                 } else if (action === 'swap') {
-                    showSwapOverlay(); // 🚨 New handler for swap
+                    showSwapOverlay(); 
                 } else {
-                    api(action);
+                    // Call API for other actions (spin, ref)
+                    api(action); 
                 }
             };
         });
@@ -1069,7 +1104,7 @@
         taskButton.onclick = showTaskOverlay;
         closeTaskButton.onclick = hideTaskOverlay;
         
-        // 🚨 Swap Event Listeners
+        // Swap Event Listeners
         closeSwapButton.onclick = hideSwapOverlay;
         executeSwapBtn.onclick = handleExecuteSwap;
 
