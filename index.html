@@ -222,6 +222,7 @@
             overflow-y: auto;
         }
 
+        /* Task Overlay */
         #task-overlay h2 {
             color: #00ffff;
             font-size: 28px; 
@@ -267,7 +268,92 @@
             color: #fff;
         }
 
-        /* Task Buttons Styles (Unified Look) */
+        /* Swap Overlay Styles */
+        #swap-overlay h2 {
+            color: #ffff00; /* Yellow for prominence */
+            font-size: 28px; 
+            margin-bottom: 20px;
+        }
+
+        #swap-container {
+            width: 90%;
+            max-width: 400px;
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .conversion-rate-info {
+            font-size: 14px;
+            color: #00ffff;
+            background: #222;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ff00ff;
+        }
+
+        #pointsInput {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ff00ff;
+            border-radius: 8px;
+            background: #000;
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+            box-sizing: border-box;
+            outline: none;
+        }
+        #pointsInput:focus {
+             border-color: #ffff00;
+        }
+
+        .usdt-output-box {
+            background: #000033;
+            border: 1px solid #00ffff;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .usdt-output-box p {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .usdt-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ffff;
+        }
+
+        #executeSwapBtn {
+            width: 100%;
+            height: 50px;
+            font-size: 18px;
+        }
+
+        /* Task/General Buttons Styles (Unified Look) */
         .task-button {
             padding: 10px 15px; 
             font-size: 14px; 
@@ -288,12 +374,12 @@
             box-shadow: 0 3px 0 #009999;
         }
 
-        .btn-join:active, .btn-watch-ad:active, .btn-claim:active {
+        .btn-join:active, .btn-watch-ad:active, .btn-claim:active, #executeSwapBtn:active {
             transform: translateY(2px);
             box-shadow: 0 1px 0 #009999;
         }
 
-        .btn-claimed {
+        .btn-claimed, #executeSwapBtn:disabled {
             background: #555 !important;
             color: #ccc !important;
             cursor: default;
@@ -459,15 +545,43 @@
         </button>
     </div>
 
+    <div id="swap-overlay" class="general-overlay">
+        <h2>💰 Swap Points to USDT</h2>
+        
+        <div id="swap-container">
+            <div class="conversion-rate-info">
+                Exchange Rate: 150,000 Points = 0.01 USDT
+            </div>
+
+            <div class="input-group">
+                <label for="pointsInput">Points to Swap:</label>
+                <input type="number" id="pointsInput" placeholder="Minimum 150,000">
+            </div>
+            
+            <div class="usdt-output-box">
+                <p>You will receive:</p>
+                <div id="usdtOutput" class="usdt-value">0.00000000 USDT</div>
+            </div>
+
+            <button id="executeSwapBtn" class="task-button btn-join" disabled>
+                SWAP NOW
+            </button>
+        </div>
+
+        <button id="close-swap-overlay" class="task-close-btn">
+            Close
+        </button>
+    </div>
+
     <script>
         // --- API & Utility Functions ---
         async function api(action, data = {}) {
             try {
                 // Mock API call (Replace with actual backend logic)
                 console.log(`API Call: ${action}`, data);
-                // Simulate success for balance/task status fetch
+                
                 if (action === 'getBalanceAndTaskStatus') {
-                    // 🚨 تم تعديل القيم هنا لتبدأ من صفر
+                    // يبدأ المستخدم برصيد صفر كما طُلِب
                     return { 
                         ok: true, 
                         data: { 
@@ -479,7 +593,8 @@
                         } 
                     };
                 }
-                // Simulate success for actions
+                
+                // Mock success for other actions (including executeSwap)
                 return { ok: true };
             } catch (e) {
                 console.error('API error', e);
@@ -497,14 +612,13 @@
         const backButton = document.getElementById('back-button');
         const overallPointsElement = document.getElementById('points'); 
         const overallTicketElement = document.getElementById('ticket'); 
+        const overallUsdtElement = document.getElementById('usdt'); // New reference for USDT
         const body = document.body; 
 
         // Task Elements
         const taskButton = document.getElementById('task-button');
         const taskOverlay = document.getElementById('task-overlay');
         const closeTaskButton = document.getElementById('close-task-overlay');
-        
-        // New Task Specific Elements
         const joinBtn = document.getElementById('joinBtn');
         const watchAdBtn = document.getElementById('watchAdBtn');
         const adsLeftSpan = document.getElementById('adsLeft'); 
@@ -512,8 +626,16 @@
         
         // Photo and User Info Elements
         const userPhoto = document.getElementById('userPhoto');
-        const userNameElement = document.getElementById('userName'); // عنصر جديد للاسم
-        const userIdTextElement = document.getElementById('userIdText'); // عنصر جديد للمعرف ID
+        const userNameElement = document.getElementById('userName'); 
+        const userIdTextElement = document.getElementById('userIdText'); 
+
+        // 🚨 Swap Elements
+        const swapOverlay = document.getElementById('swap-overlay');
+        const closeSwapButton = document.getElementById('close-swap-overlay');
+        const pointsInput = document.getElementById('pointsInput');
+        const usdtOutput = document.getElementById('usdtOutput');
+        const executeSwapBtn = document.getElementById('executeSwapBtn');
+
 
         let score = 0;
         let timeLeft = 30; 
@@ -522,12 +644,13 @@
         let animationFrameId;
         let fruits = [];
         let bombsSpawnedCount = 0; 
-        const MAX_BOMBS_PER_GAME = 4; 
+        const MAX_BOMBS_PER_GAME = 2; 
         const BOMB_SPAWN_PROBABILITY = 0.02; 
         
-        // حجم الفاكهة الحالي (75)
-        const FRUIT_SIZE = 55; 
+        const FRUIT_SIZE = 75; 
         const FRUIT_TOUCH_RADIUS_MULTIPLIER = 2.5; 
+        const EXCHANGE_RATE_DIVISOR = 15000000; // 150,000 / 0.01 = 15,000,000
+        const MIN_SWAP_POINTS = 150000;
         
         // Task Data Model (Replace with actual fetched data on load)
         let taskData = {
@@ -552,7 +675,7 @@
             }, 50); 
         }
 
-        // --- Game Logic ---
+        // --- Game Logic (Unchanged) ---
 
         function createFruit() {
             let isBomb = false;
@@ -639,6 +762,8 @@
             gameScreen.style.display = 'none';
             mainInterface.style.display = 'block';
             taskOverlay.style.display = 'none';
+            swapOverlay.style.display = 'none'; // Hide swap on return
+            
             clearInterval(timerInterval);
             clearInterval(spawnInterval);
             cancelAnimationFrame(animationFrameId);
@@ -662,6 +787,7 @@
 
             mainInterface.style.display = 'none';
             taskOverlay.style.display = 'none';
+            swapOverlay.style.display = 'none';
             gameScreen.style.display = 'flex';
             
             canvas.addEventListener('touchstart', handleTouchOrClick);
@@ -710,12 +836,10 @@
             document.getElementById('overlay').style.display = 'flex';
         }
         
-        // --- Task Functions (Updated for multiple tasks) ---
+        // --- Task Functions (Unchanged) ---
         
         function updateTaskDisplay() {
-            // 1. Join Channel Task
             const joinState = taskData.joinChannel.state;
-            
             joinBtn.onclick = null; 
 
             if (joinState === 'join') {
@@ -734,7 +858,6 @@
                 joinBtn.disabled = true;
             }
             
-            // 2. Watch Ads Task
             adsLeftSpan.textContent = taskData.adsLeft;
             const adsReward = taskData.adReward;
             
@@ -750,41 +873,35 @@
                 watchAdBtn.disabled = false;
             }
             
-            // 3. Dev Contact Button (Functionality handled in listeners)
             devContactBtn.textContent = `dev (@do1_8)`; 
             devContactBtn.onclick = () => window.open('https://t.me/do1_8', '_blank');
         }
 
         function showTaskOverlay() {
-            updateTaskDisplay(); // Update buttons before showing
+            updateTaskDisplay(); 
             mainInterface.style.display = 'none';
+            swapOverlay.style.display = 'none';
             taskOverlay.style.display = 'flex';
         }
         
         function hideTaskOverlay() {
             taskOverlay.style.display = 'none';
-            showMainInterface(); // Return to main screen
+            showMainInterface(); 
         }
 
         function handleJoinChannel() {
-            // 1. Open the Telegram link in a new tab/window
             window.open(taskData.joinChannel.link, '_blank');
-
-            // 2. Change the button state to 'check'
             taskData.joinChannel.state = 'check';
             updateTaskDisplay();
         }
 
         async function checkJoinChannelStatus() {
-            // Check Status Logic (Simulated)
             joinBtn.textContent = '⏳ Checking...';
             joinBtn.disabled = true;
             joinBtn.className = 'task-button btn-claimed'; 
 
-            // Simulate API check
             await new Promise(resolve => setTimeout(resolve, 1500)); 
 
-            // Mock Success: Give reward
             const reward = taskData.joinChannel.reward;
             const currentTickets = parseInt(overallTicketElement.textContent || '0');
             overallTicketElement.textContent = currentTickets + reward;
@@ -792,32 +909,112 @@
             taskData.joinChannel.state = 'claimed';
             updateTaskDisplay();
 
-            // In a real scenario, you'd update the backend:
             await api('claimTaskReward', { task: 'joinChannel', reward: reward });
         }
         
         async function handleWatchAd() {
             if (taskData.adsLeft <= 0) return;
             
-            // Simulate Ad Watching process
             watchAdBtn.textContent = 'Watching...';
             watchAdBtn.disabled = true;
             watchAdBtn.className = 'task-button btn-claimed';
 
-            // Simulate ad delay (e.g., 5 seconds)
             await new Promise(resolve => setTimeout(resolve, 5000)); 
             
-            // Decrease count and add reward
             taskData.adsLeft--;
             const reward = taskData.adReward;
             const currentTickets = parseInt(overallTicketElement.textContent || '0');
             overallTicketElement.textContent = currentTickets + reward;
             
-            // In a real scenario, you'd update the backend:
             await api('watchAd', { reward: reward });
 
-            // Update display
             updateTaskDisplay();
+        }
+
+        // --- Swap Logic (NEW) ---
+        
+        function calculateSwap() {
+            const pointsValue = parseInt(pointsInput.value) || 0;
+            const availablePoints = parseInt(overallPointsElement.textContent || '0');
+            
+            let usdtValue = 0;
+            let isValid = false;
+
+            if (pointsValue >= MIN_SWAP_POINTS && pointsValue <= availablePoints) {
+                // Calculation: Points / 15,000,000
+                usdtValue = pointsValue / EXCHANGE_RATE_DIVISOR;
+                isValid = true;
+            }
+
+            // Format USDT output to 8 decimal places for precise display
+            const formattedUsdt = usdtValue.toFixed(8);
+            usdtOutput.textContent = `${formattedUsdt} USDT`;
+            
+            // Enable/Disable Swap Button
+            executeSwapBtn.disabled = !isValid;
+            if (isValid) {
+                 executeSwapBtn.textContent = `SWAP ${pointsValue} POINTS`;
+            } else if (pointsValue > availablePoints) {
+                executeSwapBtn.textContent = 'Insufficient Points';
+            } else {
+                executeSwapBtn.textContent = `Min ${MIN_SWAP_POINTS.toLocaleString()} Points`;
+            }
+        }
+        
+        function showSwapOverlay() {
+            mainInterface.style.display = 'none';
+            taskOverlay.style.display = 'none';
+            gameScreen.style.display = 'none';
+            
+            swapOverlay.style.display = 'flex';
+            
+            // Reset and calculate on show
+            pointsInput.value = '';
+            calculateSwap(); 
+            
+            // Add listener (remove previous to prevent duplication)
+            pointsInput.removeEventListener('input', calculateSwap);
+            pointsInput.addEventListener('input', calculateSwap);
+        }
+
+        function hideSwapOverlay() {
+            swapOverlay.style.display = 'none';
+            pointsInput.removeEventListener('input', calculateSwap);
+            showMainInterface(); 
+        }
+
+        async function handleExecuteSwap() {
+            const pointsToSwap = parseInt(pointsInput.value);
+            const availablePoints = parseInt(overallPointsElement.textContent || '0');
+
+            if (pointsToSwap >= MIN_SWAP_POINTS && pointsToSwap <= availablePoints) {
+                executeSwapBtn.textContent = 'Processing...';
+                executeSwapBtn.disabled = true;
+
+                // Simulate API call for exchange
+                const res = await api('executeSwap', { points: pointsToSwap });
+
+                if (res.ok) {
+                    // Update local state (Mock)
+                    const usdtGained = pointsToSwap / EXCHANGE_RATE_DIVISOR;
+                    
+                    const currentPoints = availablePoints - pointsToSwap;
+                    // Get current USDT value, parse it as float
+                    const currentUsdt = parseFloat(overallUsdtElement.textContent);
+                    const newUsdt = currentUsdt + usdtGained;
+                    
+                    // Update UI
+                    overallPointsElement.textContent = currentPoints;
+                    // Display USDT with 2 decimal places in the main interface
+                    overallUsdtElement.textContent = newUsdt.toFixed(2); 
+
+                    alert(`Swap successful! You exchanged ${pointsToSwap} points for ${usdtGained.toFixed(8)} USDT.`);
+                    hideSwapOverlay(); 
+                } else {
+                    alert('Swap failed. Please try again.');
+                    calculateSwap(); // Restore button state
+                }
+            }
         }
 
 
@@ -830,10 +1027,8 @@
                 const user = tg.initDataUnsafe?.user;
                 if (user) {
                     userPhoto.src = user.photo_url || '';
-                    // Display photo only if URL is present, otherwise hide it.
                     userPhoto.style.display = user.photo_url ? 'block' : 'none'; 
                     
-                    // Logic to display both username (or name) and ID
                     const displayName = user.username ? `@${user.username}` : user.first_name || 'User'; 
                     const displayId = `ID: ${user.id}`;
                     
@@ -843,12 +1038,10 @@
                     // Fetch task state and balance:
                     const res = await api('getBalanceAndTaskStatus', {userId: user.id});
                     if (res.ok) {
-                        // يتم تحديث العناصر هنا بالقيم الصفرية التي تم إرجاعها من دالة api
                         document.getElementById('points').textContent = res.data.points;
-                        document.getElementById('usdt').textContent = res.data.usdt;
+                        document.getElementById('usdt').textContent = res.data.usdt.toFixed(2); // Display USDT with 2 decimals
                         document.getElementById('ticket').textContent = res.data.ticket;
                         
-                        // Update initial task state from mock API result
                         taskData.joinChannel.state = res.data.joinTaskStatus || 'join';
                         taskData.adsLeft = res.data.adsLeft || 300;
                     }
@@ -862,6 +1055,8 @@
                 const action = btn.dataset.action;
                 if (action === 'play') {
                     showGameScreen();
+                } else if (action === 'swap') {
+                    showSwapOverlay(); // 🚨 New handler for swap
                 } else {
                     api(action);
                 }
@@ -873,6 +1068,10 @@
         // Task Event Listeners
         taskButton.onclick = showTaskOverlay;
         closeTaskButton.onclick = hideTaskOverlay;
+        
+        // 🚨 Swap Event Listeners
+        closeSwapButton.onclick = hideSwapOverlay;
+        executeSwapBtn.onclick = handleExecuteSwap;
 
     </script>
 </body>
