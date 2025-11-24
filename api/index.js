@@ -142,7 +142,8 @@ module.exports = async (req, res) => {
             // ----------------------------------------------------
             case 'getBalanceAndTaskStatus':
                 // جلب بيانات المستخدم: نقاط, USDT, تذاكر, حالة المهمة, الإعلانات المتبقية
-                const userData = await callSupabase('users', 'GET', null, `id=eq.${userId}&select=points,usdt,ticket,join_status,ads_left`);
+                // 🚨 تم تعديل الاستعلام ليشمل games_played
+                const userData = await callSupabase('users', 'GET', null, `id=eq.${userId}&select=points,usdt,ticket,join_status,ads_left,games_played`);
                 
                 if (!userData) {
                      // 🚨 إذا لم يوجد المستخدم، يجب على الكود إنشاء مستخدم جديد هنا
@@ -154,95 +155,14 @@ module.exports = async (req, res) => {
                     usdt: userData.usdt, 
                     ticket: userData.ticket, 
                     joinTaskStatus: userData.join_status, 
-                    adsLeft: userData.ads_left 
+                    adsLeft: userData.ads_left,
+                    gamesPlayed: userData.games_played // 🚨 تم إضافة هذا الحقل
                 };
                 break;
 
             // ----------------------------------------------------
-            // 2. الأكشن: addPoints
+            // 2. الأكشن: recordGameEnd (الجديد: يضيف النقاط ويزيد عداد الألعاب)
             // ----------------------------------------------------
-            case 'addPoints':
+            case 'recordGameEnd':
                 const points = data.points; 
-                if (typeof points !== 'number' || points < 0) throw new Error('Invalid points value.');
-                
-                // 🚨 يجب استخدام RPC أو دالة تحديث آمنة لزيادة النقاط بشكل متزامن
-                // await callSupabase('rpc/increment_points', 'POST', { user_id: userId, amount: points });
-                responseData = { message: `Requested addition of ${points} points.` };
-                break;
-
-            // ----------------------------------------------------
-            // 3. الأكشن: claimTaskReward
-            // ----------------------------------------------------
-            case 'claimTaskReward':
-                const { task, reward } = data; 
-                if (task !== 'joinChannel' || typeof reward !== 'number') throw new Error('Invalid task data.');
-                
-                // 🚨 تنفيذ التحقق من الانضمام ثم تحديث حالة المهمة وإضافة التذاكر
-                // await callSupabase('users', 'PATCH', { /* تحديث */ }, `id=eq.${userId}&join_status=eq.check`);
-                responseData = { message: `Requested claim for ${reward} tickets for ${task}.` };
-                break;
-
-            // ----------------------------------------------------
-            // 4. الأكشن: watchAd
-            // ----------------------------------------------------
-            case 'watchAd':
-                const adReward = data.reward; 
-                if (typeof adReward !== 'number') throw new Error('Invalid ad reward.');
-                
-                // 🚨 تنفيذ خصم إعلان واحد وزيادة التذكرة بشكل آمن
-                // await callSupabase('users', 'PATCH', { /* تحديث */ }, `id=eq.${userId}&ads_left=gt.0`);
-                responseData = { message: `Requested ad watch and ${adReward} ticket addition.` };
-                break;
-
-            // ----------------------------------------------------
-            // 5. الأكشن: executeSwap
-            // ----------------------------------------------------
-            case 'executeSwap':
-                const { newPoints, newUsdt } = data;
-                
-                if (typeof newPoints !== 'number' || !newUsdt) throw new Error('Invalid swap data.');
-                
-                // 🚨 تنفيذ عملية المقايضة (خصم النقاط وإضافة USDT) كـ Transaction
-                // await callSupabase('rpc/execute_swap_transaction', 'POST', { user_id: userId, new_points: newPoints, new_usdt: newUsdt });
-                
-                responseData = { 
-                    message: "Swap request sent for processing.",
-                    newPoints: newPoints, 
-                    newUsdt: newUsdt 
-                };
-                break;
-                
-            // ----------------------------------------------------
-            // 6. الأكشن: spin
-            // ----------------------------------------------------
-            case 'spin':
-                // 🚨 تنفيذ منطق Spin (خصم تذكرة/عملة، ثم إضافة المكافأة)
-                // await callSupabase('rpc/execute_spin', 'POST', { user_id: userId });
-                responseData = { message: "Spin request sent." };
-                break;
-                
-            // ----------------------------------------------------
-            // 7. الأكشن: ref
-            // ----------------------------------------------------
-            case 'ref':
-                // 🚨 جلب بيانات الإحالة
-                // const refData = await callSupabase('referrals', 'GET', null, `referrer_id=eq.${userId}`);
-                responseData = { message: "Referral data requested." };
-                break;
-
-            default:
-                throw new Error(`Unknown action: ${action}`);
-        }
-
-        // إرسال استجابة النجاح
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ ok: true, action: action, ...responseData }));
-
-    } catch (error) {
-        // إرسال استجابة الخطأ
-        console.error(`Error processing request: ${error.message}`);
-        const statusCode = error.message.includes('JSON') || error.message.includes('Missing') ? 400 : 500;
-        res.writeHead(statusCode, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ ok: false, error: error.message }));
-    }
-};
+                if (typeof points
